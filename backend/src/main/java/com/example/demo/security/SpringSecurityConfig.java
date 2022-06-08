@@ -49,6 +49,8 @@ public class SpringSecurityConfig {
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
 
     private final JpaUserDetailsManager jpaUserDetailsManager;
+    @Autowired
+    private UserServiceImpl userService;
 
     public SpringSecurityConfig(JwtAuthorizationFilter jwtAuthFilter, JwtAccessDeniedHandler jwtAccessDeniedHandler, JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint, JpaUserDetailsManager jpaUserDetailsManager) {
         this.jwtAuthFilter = jwtAuthFilter;
@@ -89,7 +91,9 @@ public class SpringSecurityConfig {
     @Bean
     public DaoAuthenticationProvider jpaDaoAuthenticationProvider() {
         DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider();
-        daoAuthenticationProvider.setUserDetailsService(jpaUserDetailsManager);
+        // works either way - with user details service OR with user details manager
+//        daoAuthenticationProvider.setUserDetailsService(jpaUserDetailsManager);
+        daoAuthenticationProvider.setUserDetailsService(userService);
         daoAuthenticationProvider.setPasswordEncoder(passwordEncoder());
         return daoAuthenticationProvider;
     }
