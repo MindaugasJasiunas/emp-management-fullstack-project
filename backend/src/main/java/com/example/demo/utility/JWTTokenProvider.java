@@ -45,7 +45,7 @@ public class JWTTokenProvider {
                 .withIssuedAt(new Date())
                 .withSubject(userPrincipal.getUsername())
                 .withArrayClaim("authorities", claims.toArray(new String[0]))  // convert List< String> to String[]
-                .withExpiresAt(new Date(System.currentTimeMillis() + (tokenExpirationAfterDays * 1000)))
+                .withExpiresAt(new Date(System.currentTimeMillis() + (tokenExpirationAfterDays * 60 * 60 * 24 * 1000)))
                 .sign(Algorithm.HMAC512(secretKey));
     }
 

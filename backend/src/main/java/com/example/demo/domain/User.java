@@ -1,5 +1,6 @@
 package com.example.demo.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.Setter;
@@ -39,11 +40,13 @@ public class User implements Serializable {
     @Setter(AccessLevel.NONE)
     @Transient
     private int age;
+    @JsonIgnore
     @ManyToMany(cascade = CascadeType.MERGE, fetch = FetchType.EAGER)
     @JoinTable(name = "user_role",
             joinColumns = {@JoinColumn(name = "user_id", referencedColumnName = "id")},
             inverseJoinColumns = {@JoinColumn(name = "role_id", referencedColumnName = "id")})
     private Set<Role> roles; // ROLE_USER, ROLE_ADMIN, ...
+    @JsonIgnore
     @Setter(AccessLevel.NONE)
     @Transient
     private Set<Authority> authorities; // delete, update, create, read, ...
@@ -56,5 +59,4 @@ public class User implements Serializable {
         if(dateOfBirth == null) return -1;
         return LocalDate.now().getYear() - dateOfBirth.getYear();
     }
-
 }
