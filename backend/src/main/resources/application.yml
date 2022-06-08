@@ -18,3 +18,8 @@ spring:
     defer-datasource-initialization: true
 # script-based initialization is performed by default only for embedded databases, to always initialize a database using scripts
   sql.init.mode: always
+
+jwt:
+  secretKey: 'SuperLongAndVerySecureKey-[].~^+$&4'
+  tokenPrefix: 'Bearer '
+  tokenExpirationAfterDays: 14
