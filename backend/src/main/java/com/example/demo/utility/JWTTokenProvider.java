@@ -25,7 +25,7 @@ import java.util.stream.Stream;
 @ConfigurationProperties(prefix = "jwt")
 public class JWTTokenProvider {
     private final String authorizationHeader = HttpHeaders.AUTHORIZATION;
-    public final String secretKey;
+    private final String secretKey;
     private final String tokenPrefix;
     private final Integer tokenExpirationAfterDays;
 
