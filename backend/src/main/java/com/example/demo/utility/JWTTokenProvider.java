@@ -26,7 +26,7 @@ import java.util.stream.Stream;
 public class JWTTokenProvider {
     private final String authorizationHeader = HttpHeaders.AUTHORIZATION;
     private final String secretKey;
-    private final String tokenPrefix;
+    public final String tokenPrefix;
     private final Integer tokenExpirationAfterDays;
 
     public JWTTokenProvider(String secretKey, String tokenPrefix, Integer tokenExpirationAfterDays) {
@@ -68,7 +68,7 @@ public class JWTTokenProvider {
         return ((username != null) && (username.trim() != "") && (!isTokenExpired(token)));
     }
 
-    private String getSubject(String token){
+    public String getSubject(String token){
         return getJWTVerifier().verify(token).getSubject();
     }
 
