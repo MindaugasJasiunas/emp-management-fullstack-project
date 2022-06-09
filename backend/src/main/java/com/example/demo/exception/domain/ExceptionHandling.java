@@ -1,12 +1,23 @@
 package com.example.demo.exception.domain;
 
+import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.example.demo.HttpResponse;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.LockedException;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+import javax.persistence.NoResultException;
+import java.io.IOException;
+import java.nio.file.AccessDeniedException;
+import java.util.Objects;
 
 @RestControllerAdvice
 public class ExceptionHandling {
@@ -33,6 +44,47 @@ public class ExceptionHandling {
     @ExceptionHandler(EmailNotFoundException.class)
     public ResponseEntity<HttpResponse> handleEmailNotFoundException(EmailNotFoundException exception){
         return createHttpResponse(HttpStatus.BAD_REQUEST, EMAIL_NOT_FOUND);
+    }
+
+    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+    public ResponseEntity<HttpResponse> handleUnsupportedMethodException(HttpRequestMethodNotSupportedException exception){
+        HttpMethod supportedMethod = Objects.requireNonNull(exception.getSupportedHttpMethods().iterator().next());
+        return createHttpResponse(HttpStatus.METHOD_NOT_ALLOWED, String.format(METHOD_IS_NOT_ALLOWED, supportedMethod));
+    }
+
+    @ExceptionHandler(TokenExpiredException.class)
+    public ResponseEntity<HttpResponse> handleJWTTokenExpiredException(TokenExpiredException exception){
+        return createHttpResponse(HttpStatus.UNAUTHORIZED, exception.getMessage());
+    }
+
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<HttpResponse> handleJWTBadCredentialsException(BadCredentialsException exception){
+        return createHttpResponse(HttpStatus.BAD_REQUEST, INCORRECT_CREDENTIALS);
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<HttpResponse> handleJWTAccessDeniedException(AccessDeniedException exception){
+        return createHttpResponse(HttpStatus.FORBIDDEN, NOT_ENOUGH_PERMISSION);
+    }
+
+    @ExceptionHandler(LockedException.class)
+    public ResponseEntity<HttpResponse> handleJWTAccountLockedException(LockedException exception){
+        return createHttpResponse(HttpStatus.LOCKED, ACCOUNT_LOCKED);
+    }
+
+    @ExceptionHandler(NoResultException.class)
+    public ResponseEntity<HttpResponse> notFoundException(NoResultException exception){
+        return createHttpResponse(HttpStatus.NOT_FOUND, exception.getMessage());
+    }
+
+    @ExceptionHandler(IOException.class)
+    public ResponseEntity<HttpResponse> ioException(IOException exception){
+        return createHttpResponse(HttpStatus.INTERNAL_SERVER_ERROR, ERROR_PROCESSING_FILE);
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<HttpResponse> handleFallbackException(Exception exception){
+        return createHttpResponse(HttpStatus.INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR);
     }
 
 }
