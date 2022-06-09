@@ -14,8 +14,11 @@ import java.util.Optional;
 
 @Service
 public class JpaUserDetailsManager implements UserDetailsManager {
-    @Autowired
-    private UserRepository repository;
+    private final UserRepository repository;
+
+    public JpaUserDetailsManager(UserRepository repository) {
+        this.repository = repository;
+    }
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
