@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:postgresql://0.0.0.0:49154/ourdb
+    url: jdbc:postgresql://0.0.0.0:49153/ourdb
     username: root
     password: rootroot
 
@@ -23,3 +23,8 @@ jwt:
   secretKey: 'SuperLongAndVerySecureKey-[].~^+$&4'
   tokenPrefix: 'Bearer '
   tokenExpirationAfterDays: 14
+
+server:
+  error:
+    whitelabel:
+      enabled: false

@@ -63,8 +63,9 @@ public class SpringSecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests((authz) -> authz
-                        .antMatchers("/api/v1/**").permitAll()
-                        .antMatchers("/api/v2/**").hasAuthority("SUPER_ADMIN")
+                        .antMatchers("/users/home/**").permitAll()
+                        .antMatchers("/users/error/**").permitAll()
+                        .antMatchers("/users/auth/**").hasAuthority("SUPER_ADMIN")
                         .anyRequest().authenticated() //should be after all matchers
 
                 )
