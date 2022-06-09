@@ -19,12 +19,19 @@ spring:
 # script-based initialization is performed by default only for embedded databases, to always initialize a database using scripts
   sql.init.mode: always
 
-jwt:
-  secretKey: 'SuperLongAndVerySecureKey-[].~^+$&4'
-  tokenPrefix: 'Bearer '
-  tokenExpirationAfterDays: 14
+#  mvc:
+#    throw-exception-if-no-handler-found: true
+#  web:
+#    resources:
+#      add-mappings: false
 
 server:
   error:
     whitelabel:
       enabled: false
+
+jwt:
+  secretKey: 'SuperLongAndVerySecureKey-[].~^+$&4'
+  tokenPrefix: 'Bearer '
+  tokenExpirationAfterDays: 14
+

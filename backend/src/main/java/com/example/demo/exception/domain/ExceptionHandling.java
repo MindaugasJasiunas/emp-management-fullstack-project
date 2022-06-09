@@ -3,6 +3,7 @@ package com.example.demo.exception.domain;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.example.demo.HttpResponse;
+import org.springframework.boot.web.servlet.error.ErrorController;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.servlet.NoHandlerFoundException;
 
 import javax.persistence.NoResultException;
 import java.io.IOException;
@@ -86,5 +88,10 @@ public class ExceptionHandling {
     public ResponseEntity<HttpResponse> handleFallbackException(Exception exception){
         return createHttpResponse(HttpStatus.INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR);
     }
+
+//    @ExceptionHandler(NoHandlerFoundException.class)
+//    public ResponseEntity<HttpResponse> handleGlobalSpringBootExceptions(NoHandlerFoundException exception){
+//        return createHttpResponse(HttpStatus.NOT_FOUND, "This page was not found");
+//    }
 
 }
