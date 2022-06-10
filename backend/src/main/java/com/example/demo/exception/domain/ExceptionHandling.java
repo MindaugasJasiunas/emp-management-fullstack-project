@@ -31,6 +31,8 @@ public class ExceptionHandling {
     private static final String ERROR_PROCESSING_FILE = "Error occurred while processing file";
     private static final String NOT_ENOUGH_PERMISSION = "You do not have enough permission";
     private static final String EMAIL_NOT_FOUND = "Email not found";
+    private static final String EMAIL_EXISTS = "User with email %s already exists";
+    private static final String USERNAME_EXISTS = "User with username %s already exists";
 
     private ResponseEntity<HttpResponse> createHttpResponse(HttpStatus status, String message){
         HttpResponse response = new HttpResponse(status.value(), status, status.getReasonPhrase(), message);
@@ -46,6 +48,16 @@ public class ExceptionHandling {
     @ExceptionHandler(EmailNotFoundException.class)
     public ResponseEntity<HttpResponse> handleEmailNotFoundException(EmailNotFoundException exception){
         return createHttpResponse(HttpStatus.BAD_REQUEST, EMAIL_NOT_FOUND);
+    }
+
+    @ExceptionHandler(EmailAlreadyExistsException.class)
+    public ResponseEntity<HttpResponse> handleEmailAlreadyExistsException(EmailAlreadyExistsException exception){
+        return createHttpResponse(HttpStatus.BAD_REQUEST, String.format(EMAIL_EXISTS, exception.getMessage()));
+    }
+
+    @ExceptionHandler(UsernameAlreadyExistsException.class)
+    public ResponseEntity<HttpResponse> handleUsernameAlreadyExistsException(UsernameAlreadyExistsException exception){
+        return createHttpResponse(HttpStatus.BAD_REQUEST, String.format(USERNAME_EXISTS, exception.getMessage()));
     }
 
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
@@ -87,6 +99,11 @@ public class ExceptionHandling {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<HttpResponse> handleFallbackException(Exception exception){
         return createHttpResponse(HttpStatus.INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR);
+    }
+
+    @ExceptionHandler(UserValidationException.class)
+    public ResponseEntity<HttpResponse> handleUserValidationException(UserValidationException exception){
+        return createHttpResponse(HttpStatus.BAD_REQUEST, exception.getMessage());
     }
 
 //    @ExceptionHandler(NoHandlerFoundException.class)

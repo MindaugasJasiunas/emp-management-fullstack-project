@@ -6,6 +6,9 @@ import lombok.Data;
 import lombok.Setter;
 
 import javax.persistence.*;
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Size;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.Set;
@@ -25,11 +28,18 @@ public class User implements Serializable {
     @Column(nullable = false, updatable = false)
     private Long id;
 //    @Column(columnDefinition = "varchar(36)", unique = true, nullable= false)
-    private UUID publicId;
+    private UUID publicId = UUID.randomUUID();
+    @NotBlank(message = "First name is required")
     private String firstName;
+    @NotBlank(message = "Last name is required")
     private String lastName;
+    @NotBlank(message = "Username is required")
     private String username;
+    @NotBlank(message = "Password is required")
+    @Size(min = 8, message = "Password must be atleast 8 characters long")
     private String password;
+    @NotBlank(message = "Email is required")
+    @Email
     private String email;
     private String profileImageUrl;
     private LocalDate joinDate; // creationTimestamp
