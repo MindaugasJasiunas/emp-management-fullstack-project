@@ -6,6 +6,7 @@ import com.example.demo.exception.domain.EmailAlreadyExistsException;
 import com.example.demo.exception.domain.UsernameAlreadyExistsException;
 import com.example.demo.repository.UserRepository;
 import com.example.demo.service.UserService;
+import com.example.demo.utility.JWTTokenProvider;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -25,9 +26,11 @@ import java.util.Optional;
 @Qualifier("userDetailsService")
 public class UserServiceImpl implements UserDetailsService, UserService {
     private final UserRepository repository;
+    private final JWTTokenProvider jwtProvider;
 
-    public UserServiceImpl(UserRepository repository) {
+    public UserServiceImpl(UserRepository repository, JWTTokenProvider jwtProvider) {
         this.repository = repository;
+        this.jwtProvider = jwtProvider;
     }
 
     @Override
@@ -55,5 +58,19 @@ public class UserServiceImpl implements UserDetailsService, UserService {
             throw new EmailAlreadyExistsException(user.getEmail());
         }
         return repository.save(user);
+    }
+
+    @Override
+    public Optional<User> getUserByUsername(String username) {
+        return repository.findByUsername(username);
+    }
+
+    public String generateTokenForUser(String username){
+        if(repository.findByUsername(username).isPresent()){
+            User user = repository.findByUsername(username).get();
+            return jwtProvider.generateJwtToken(new UserPrincipal(user));
+        }else{
+            return null;
+        }
     }
 }

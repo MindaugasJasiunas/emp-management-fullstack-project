@@ -23,7 +23,7 @@ public class UserResource extends ExceptionHandling {  // ExceptionHandling clas
     @GetMapping("/")
     @ResponseStatus(HttpStatus.OK)
     public List<User> allUsers(){
-        return Collections.emptyList();
+        return userService.getUsers();
     }
 
     @GetMapping("/home")
@@ -41,15 +41,6 @@ public class UserResource extends ExceptionHandling {  // ExceptionHandling clas
     @GetMapping("/error")
     public String testErrorHandling() throws UserDisabledException {
         throw new UserDisabledException("User with id X and username X is disabled");
-    }
-
-    @RequestMapping(value = "/register", method = RequestMethod.POST)
-    @ResponseStatus(HttpStatus.CREATED)
-    public User registerNewUser(@Valid @RequestBody User user, BindingResult result) throws UsernameAlreadyExistsException, EmailAlreadyExistsException, UserValidationException {
-        if (result.hasErrors()) {
-            throw new UserValidationException(result.getAllErrors().get(0).getDefaultMessage());
-        }
-        return userService.createUser(user);
     }
 
 }
