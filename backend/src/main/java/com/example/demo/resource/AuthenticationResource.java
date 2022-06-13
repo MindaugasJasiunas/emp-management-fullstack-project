@@ -1,13 +1,13 @@
 package com.example.demo.resource;
 
-import com.example.demo.HttpAuthRequest;
-import com.example.demo.HttpResponse;
+import com.example.demo.HttpAuthLoginRequest;
+import com.example.demo.HttpAuthRegisterRequest;
 import com.example.demo.domain.User;
 import com.example.demo.exception.domain.EmailAlreadyExistsException;
-import com.example.demo.exception.domain.UserNotFoundException;
 import com.example.demo.exception.domain.UserValidationException;
 import com.example.demo.exception.domain.UsernameAlreadyExistsException;
 import com.example.demo.service.UserService;
+import com.example.demo.utility.UserMapper;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,7 +15,6 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.util.Optional;
 
@@ -29,16 +28,21 @@ public class AuthenticationResource {
 
     @RequestMapping(value = "/register", method = RequestMethod.POST)
     @ResponseStatus(HttpStatus.CREATED)
-    public User registerNewUser(@Valid @RequestBody User user, BindingResult result) throws UsernameAlreadyExistsException, EmailAlreadyExistsException, UserValidationException {
+    public User registerNewUser(@Valid @RequestBody HttpAuthRegisterRequest register, BindingResult result) throws Exception {
         if (result.hasErrors()) {
             throw new UserValidationException(result.getAllErrors().get(0).getDefaultMessage());
         }
+
+        // map to user class
+        User user = UserMapper.INSTANCE.HttpAuthRegisterRequestToUser(register);
+        System.out.println(user);
+
         return userService.createUser(user);
     }
 
     @RequestMapping(value = "/login", method = RequestMethod.GET)
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<Void> getTokenForUser(@Valid @RequestBody HttpAuthRequest request, BindingResult result) throws Exception {
+    public ResponseEntity<Void> getTokenForUser(@Valid @RequestBody HttpAuthLoginRequest request, BindingResult result) throws Exception {
         // check if request has errors
         if (result.hasErrors()) {
             throw new BadCredentialsException("");

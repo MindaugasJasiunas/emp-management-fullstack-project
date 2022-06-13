@@ -11,6 +11,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -42,11 +43,11 @@ public class User implements Serializable {
     @Email
     private String email;
     private String profileImageUrl;
-    private LocalDate joinDate; // creationTimestamp
-    private LocalDate lastLoginDate;  // updateTimestamp
+    private LocalDate joinDate= LocalDate.now(); // creationTimestamp
+    private LocalDate lastLoginDate= LocalDate.now();  // updateTimestamp
     private LocalDate dateOfBirth;
-    private boolean isActive;
-    private boolean isNotLocked;
+    private boolean isActive = true;
+    private boolean isNotLocked = true;
     @Setter(AccessLevel.NONE)
     @Transient
     private int age;
@@ -62,6 +63,9 @@ public class User implements Serializable {
     private Set<Authority> authorities; // delete, update, create, read, ...
 
     public Set<Authority> getAuthorities(){
+        if(roles == null){
+            this.roles = Collections.emptySet();
+        }
         return roles.stream().map(Role::getAuthorities).flatMap(Set::stream).collect(Collectors.toSet());
     }
 

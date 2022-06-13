@@ -5,8 +5,9 @@ VALUES (1, 'e1849a7d-ec51-46a7-8afc-ec2a77e00bd6', 'johnny', 'John', 'Doe', 'enc
 -- UPDATE USER SEQUENCE
 ALTER SEQUENCE user_sequence RESTART WITH 2;
 
--- INSERT ROLE
-INSERT INTO role (id, role_name) VALUES (1, 'SUPER_ADMIN');
+-- INSERT ROLES
+INSERT INTO role (id, role_name) VALUES (1, 'ROLE_SUPER_ADMIN');
+INSERT INTO role (id, role_name) VALUES (2, 'ROLE_USER');
 
 -- JOIN USER with ROLE
 INSERT INTO user_role (user_id, role_id) VALUES (1, 1);
@@ -20,6 +21,9 @@ INSERT INTO authority (id, permission) VALUES (3, 'delete');
 INSERT INTO role_authority (role_id, authority_id) VALUES (1, 1);
 INSERT INTO role_authority (role_id, authority_id) VALUES (1, 2);
 INSERT INTO role_authority (role_id, authority_id) VALUES (1, 3);
+
+INSERT INTO role_authority (role_id, authority_id) VALUES (2, 1);
+
 
 -- INSERT INTO role (id, roleName) VALUES (1L, 'SUPER_ADMIN');
 -- INSERT INTO role (id, roleName) VALUES (2L, 'ADMIN');

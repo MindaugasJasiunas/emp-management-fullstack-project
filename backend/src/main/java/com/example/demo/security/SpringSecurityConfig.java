@@ -47,8 +47,8 @@ public class SpringSecurityConfig {
                 .authorizeHttpRequests((authz) -> authz
                         .antMatchers("/register", "/login").permitAll()
                         .antMatchers("/users/home/**").permitAll()
-                        .antMatchers("/users/error/**").permitAll()
-                        .antMatchers("/users/auth/**").hasAuthority("SUPER_ADMIN")
+                        .antMatchers("/users/error/**").hasRole("USER")
+                        .antMatchers("/users/auth/**").hasRole("SUPER_ADMIN")
                         .anyRequest().authenticated() //should be after all matchers
 
                 )

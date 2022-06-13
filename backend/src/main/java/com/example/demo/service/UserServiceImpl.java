@@ -4,8 +4,8 @@ import com.example.demo.domain.User;
 import com.example.demo.domain.UserPrincipal;
 import com.example.demo.exception.domain.EmailAlreadyExistsException;
 import com.example.demo.exception.domain.UsernameAlreadyExistsException;
+import com.example.demo.repository.RoleRepository;
 import com.example.demo.repository.UserRepository;
-import com.example.demo.service.UserService;
 import com.example.demo.utility.JWTTokenProvider;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -18,6 +18,7 @@ import javax.transaction.Transactional;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Slf4j
 
@@ -25,17 +26,19 @@ import java.util.Optional;
 @Transactional // manage propagation when dealing with 1 transaction
 @Qualifier("userDetailsService")
 public class UserServiceImpl implements UserDetailsService, UserService {
-    private final UserRepository repository;
+    private final UserRepository userRepository;
     private final JWTTokenProvider jwtProvider;
+    private final RoleRepository roleRepository;
 
-    public UserServiceImpl(UserRepository repository, JWTTokenProvider jwtProvider) {
-        this.repository = repository;
+    public UserServiceImpl(UserRepository userRepository, JWTTokenProvider jwtProvider, RoleRepository roleRepository) {
+        this.userRepository = userRepository;
         this.jwtProvider = jwtProvider;
+        this.roleRepository = roleRepository;
     }
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException{
-        Optional<User> userOptional = repository.findByUsername(username);
+        Optional<User> userOptional = userRepository.findByUsername(username);
         if(userOptional.isEmpty()){
             log.debug("Username not found: "+username);
             throw new UsernameNotFoundException("User does not exist!");
@@ -43,31 +46,37 @@ public class UserServiceImpl implements UserDetailsService, UserService {
         User user = userOptional.get();
         user.setLastLoginDate(LocalDate.now());
         // update user
-        repository.save(user);
+        userRepository.save(user);
         return new UserPrincipal(user);
     }
 
     public List<User> getUsers(){
-        return repository.findAll();
+        return userRepository.findAll();
     }
 
-    public User createUser(User user) throws UsernameAlreadyExistsException, EmailAlreadyExistsException {
-        if(repository.findByUsername(user.getUsername()).isPresent()){
+    public User createUser(User user) throws Exception {
+        if(userRepository.findByUsername(user.getUsername()).isPresent()){
             throw new UsernameAlreadyExistsException(user.getUsername());
-        }else if(repository.findByEmail(user.getEmail()).isPresent()){
+        }else if(userRepository.findByEmail(user.getEmail()).isPresent()){
             throw new EmailAlreadyExistsException(user.getEmail());
         }
-        return repository.save(user);
+        // set default role & save
+        if(roleRepository.findByRoleName("ROLE_USER").isPresent()){
+            user.setRoles(Set.of(roleRepository.findByRoleName("ROLE_USER").get()));
+            return userRepository.save(user);
+        }
+        // else internal server error
+        throw new Exception("");
     }
 
     @Override
     public Optional<User> getUserByUsername(String username) {
-        return repository.findByUsername(username);
+        return userRepository.findByUsername(username);
     }
 
     public String generateTokenForUser(String username){
-        if(repository.findByUsername(username).isPresent()){
-            User user = repository.findByUsername(username).get();
+        if(userRepository.findByUsername(username).isPresent()){
+            User user = userRepository.findByUsername(username).get();
             return jwtProvider.generateJwtToken(new UserPrincipal(user));
         }else{
             return null;

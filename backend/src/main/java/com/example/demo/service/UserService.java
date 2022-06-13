@@ -9,7 +9,7 @@ import java.util.Optional;
 
 public interface UserService {
     List<User> getUsers();
-    User createUser(User user) throws UsernameAlreadyExistsException, EmailAlreadyExistsException;
+    User createUser(User user) throws Exception;
     Optional<User> getUserByUsername(String username);
     String generateTokenForUser(String username);
 }
