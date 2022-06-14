@@ -6,6 +6,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class UserPrincipal implements UserDetails {
@@ -24,7 +25,8 @@ public class UserPrincipal implements UserDetails {
 //                    .map(role -> new SimpleGrantedAuthority(role.getRoleName()))
 //                    .collect(Collectors.toSet());
 
-            return user.getRoles().stream().map(role -> new SimpleGrantedAuthority(role.getRoleName())).collect(Collectors.toSet());
+//            return user.getRoles().stream().map(role -> new SimpleGrantedAuthority(role.getRoleName())).collect(Collectors.toSet());
+            return user.getRoles().stream().map(Role::getAuthorities).flatMap(Set::stream).map(authority -> new SimpleGrantedAuthority(authority.getPermission())).collect(Collectors.toSet());
         }else{
             return new HashSet<>();
         }
