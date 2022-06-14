@@ -3,6 +3,8 @@ package com.example.demo.service;
 import com.example.demo.domain.User;
 import com.example.demo.domain.UserPrincipal;
 import com.example.demo.exception.domain.EmailAlreadyExistsException;
+import com.example.demo.exception.domain.MalformedUserPublicIdException;
+import com.example.demo.exception.domain.UserNotFoundException;
 import com.example.demo.exception.domain.UsernameAlreadyExistsException;
 import com.example.demo.repository.RoleRepository;
 import com.example.demo.repository.UserRepository;
@@ -19,6 +21,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 
 @Slf4j
 
@@ -50,10 +53,12 @@ public class UserServiceImpl implements UserDetailsService, UserService {
         return new UserPrincipal(user);
     }
 
+    @Override
     public List<User> getUsers(){
         return userRepository.findAll();
     }
 
+    @Override
     public User createUser(User user) throws Exception {
         if(userRepository.findByUsername(user.getUsername()).isPresent()){
             throw new UsernameAlreadyExistsException(user.getUsername());
@@ -70,6 +75,20 @@ public class UserServiceImpl implements UserDetailsService, UserService {
     }
 
     @Override
+    public User updateUser(User user, String publicId) throws Exception {
+        User userFromDB = getUserByPublicId(publicId);
+        user.setId(userFromDB.getId());
+        user.setPublicId(userFromDB.getPublicId());
+        return userRepository.save(user);
+    }
+
+    @Override
+    public void deleteUser(String publicId) throws UserNotFoundException {
+        User userToDelete = getUserByPublicId(publicId);
+        userRepository.deleteById(userToDelete.getId());
+    }
+
+    @Override
     public Optional<User> getUserByUsername(String username) {
         return userRepository.findByUsername(username);
     }
@@ -80,6 +99,16 @@ public class UserServiceImpl implements UserDetailsService, UserService {
             return jwtProvider.generateJwtToken(new UserPrincipal(user));
         }else{
             return null;
+        }
+    }
+
+    @Override
+    public User getUserByPublicId(String publicId) throws UserNotFoundException {
+        try{
+            UUID uuid = UUID.fromString(publicId);
+            return userRepository.findByPublicId(uuid).get();
+        }catch (Exception e){
+            throw new UserNotFoundException("");
         }
     }
 }
