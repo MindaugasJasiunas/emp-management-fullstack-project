@@ -23,7 +23,7 @@ import static org.springframework.security.config.Customizer.withDefaults;
 // Updated Web Security configuration ('extends WebSecurityConfigurerAdapter' is deprecated)
 @Configuration
 @EnableWebSecurity
-@EnableGlobalMethodSecurity(prePostEnabled = true)
+@EnableGlobalMethodSecurity(securedEnabled=true, prePostEnabled=true)
 //public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 public class SpringSecurityConfig {
     private final JwtAuthorizationFilter jwtAuthFilter;
@@ -45,13 +45,15 @@ public class SpringSecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests((authz) -> authz
+                        .antMatchers("/users/**").permitAll()
+
                         .antMatchers("/").permitAll()
                         .antMatchers("/register", "/login").permitAll()
-                        .antMatchers("/users/home/**").hasRole("USER")
-                        .antMatchers("/users/error/**").hasRole("USER")
-                        .antMatchers("/users/auth/**").hasRole("SUPER_ADMIN")
+                        .antMatchers("/canTest").hasAuthority("canTest")
+//                        .antMatchers("/users/home/**").hasRole("USER")
+//                        .antMatchers("/users/error/**").hasRole("USER")
+//                        .antMatchers("/users/auth/**").hasRole("SUPER_ADMIN")
                         .anyRequest().authenticated() //should be after all matchers
-
                 )
                 .httpBasic(withDefaults())
 
