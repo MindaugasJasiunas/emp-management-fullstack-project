@@ -35,7 +35,6 @@ public class AuthenticationResource {
 
         // map to user class
         User user = UserMapper.INSTANCE.HttpAuthRegisterRequestToUser(register);
-        System.out.println(user);
 
         return userService.createUser(user);
     }

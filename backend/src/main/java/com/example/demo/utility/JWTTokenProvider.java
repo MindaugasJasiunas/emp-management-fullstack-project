@@ -3,6 +3,7 @@ package com.example.demo.utility;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.exceptions.JWTDecodeException;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.Claim;
 import com.example.demo.domain.UserPrincipal;
@@ -64,7 +65,12 @@ public class JWTTokenProvider {
     }
 
     public boolean isTokenValid(String token){
-        String username = getJWTVerifier().verify(token).getSubject();
+        String username;
+        try{
+            username = getJWTVerifier().verify(token).getSubject();
+        }catch (JWTDecodeException e){
+            return false;
+        }
         return ((username != null) && (username.trim() != "") && (!isTokenExpired(token)));
     }
 
