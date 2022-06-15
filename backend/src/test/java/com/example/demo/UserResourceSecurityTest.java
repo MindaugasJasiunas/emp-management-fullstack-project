@@ -77,7 +77,20 @@ public class UserResourceSecurityTest {
                 .build();
     }
 
-    @DisplayName("Test accessing endpoint without JWT authentication - returns Forbidden")
+//    @DisplayName("Test accessing main '/' endpoint without JWT authentication - returns OK")
+    @DisplayName("GET '/' without JWT - OK")
+    @Test
+    void testWithoutJWT_mainPage() throws Exception {
+        mockMvc.perform(
+                get("/")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+        )
+                .andExpect(status().isOk());
+    }
+
+//    @DisplayName("Test accessing endpoint without JWT authentication - returns Forbidden")
+    @DisplayName("GET '/users/' without JWT - Forbidden")
     @Test
     void testWithoutJWT() throws Exception {
         mockMvc.perform(
@@ -91,7 +104,8 @@ public class UserResourceSecurityTest {
         Mockito.verify(userService, Mockito.never()).getUsers();
     }
 
-    @DisplayName("Test accessing endpoint with JWT & required 'user:read' authority - returns mocked list of users")
+//    @DisplayName("Test accessing endpoint with JWT & required 'user:read' authority - returns mocked list of users")
+    @DisplayName("GET '/users/' with 'user:read' - list of users")
     @Test
     void testWithJWT() throws Exception {
         User user = Util.buildUser();
@@ -123,7 +137,8 @@ public class UserResourceSecurityTest {
                 .andExpect(jsonPath("$[0].roles[0].roleName", Matchers.is(user.getRoles().iterator().next().getRoleName())));
     }
 
-    @DisplayName("Test accessing endpoint with JWT but INVALID authorities - returns error")
+//    @DisplayName("Test accessing endpoint with JWT but INVALID authorities - returns error")
+    @DisplayName("PUT '/users/{publicId}' with JWT but INVALID authorities - Unauthorized & error")
     @Test
     void testWithInvalidJWT() throws Exception {
         User user = Util.buildUser();
@@ -153,7 +168,8 @@ public class UserResourceSecurityTest {
         Mockito.verify(userService, Mockito.never()).updateUser(any(User.class), anyString());
     }
 
-    @DisplayName("Test accessing endpoint with JWT & required 'user:update' authority - returns mocked created user")
+//    @DisplayName("Test accessing endpoint with JWT & required 'user:update' authority - returns mocked created user")
+    @DisplayName("PUT '/users/{publicId}' with 'user:update' - user")
     @Test
     void testWithValidJWT() throws Exception {
         User user = Util.buildUser();
@@ -191,5 +207,138 @@ public class UserResourceSecurityTest {
                 .andExpect(jsonPath("$.roles[0].roleName", Matchers.is(user.getRoles().iterator().next().getRoleName())));
 
         Mockito.verify(userService, Mockito.times(1)).updateUser(any(User.class), anyString());
+    }
+
+//    @DisplayName("Test accessing endpoint with JWT & required 'user:create' authority - returns mocked user")
+    @DisplayName("POST '/users/' with 'user:create' - user")
+    @Test
+    void testWithValidJWT_create() throws Exception {
+        User user = Util.buildUser();
+        user.setRoles(null);
+
+        Authority canCreateUsers = new Authority();
+        canCreateUsers.setPermission("user:create");
+        Role role = new Role();
+        role.setId(1L);
+        role.setRoleName("ROLE_ADMIN");
+        role.setAuthorities(Set.of(canCreateUsers));
+        user.setRoles(Set.of(role));
+
+        Mockito.when(userService.createUser(any(User.class))).thenReturn(user);
+
+        String token = jwtTokenProvider.generateJwtToken(new UserPrincipal(user));
+
+        mockMvc.perform(
+                post("/users/")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header(HttpHeaders.AUTHORIZATION, String.format("Bearer %s", token))
+                        .content(objectMapper.writeValueAsString(user))
+                        .accept(MediaType.APPLICATION_JSON)
+        )
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.id", Matchers.is(user.getId().intValue())))
+                .andExpect(jsonPath("$.publicId", Matchers.is(user.getPublicId().toString())))
+                .andExpect(jsonPath("$.firstName", Matchers.is(user.getFirstName())))
+                .andExpect(jsonPath("$.lastName", Matchers.is(user.getLastName())))
+                .andExpect(jsonPath("$.email", Matchers.is(user.getEmail())))
+                .andExpect(jsonPath("$.password", Matchers.is(user.getPassword())))
+                .andExpect(jsonPath("$.username", Matchers.is(user.getUsername())))
+                .andExpect(jsonPath("$.profileImageUrl", Matchers.is(user.getProfileImageUrl())))
+                .andExpect(jsonPath("$.roles[0].roleName", Matchers.is(user.getRoles().iterator().next().getRoleName())))
+                .andExpect(jsonPath("$.active", Matchers.is(user.isActive())))
+                .andExpect(jsonPath("$.notLocked", Matchers.is(user.isNotLocked())));
+
+        Mockito.verify(userService, Mockito.times(1)).createUser(any(User.class));
+    }
+
+//    @DisplayName("Test accessing endpoint with JWT but without required 'user:create' authority - returns Unauthorized")
+    @DisplayName("POST '/users/' without 'user:create' - Unauthorized")
+    @Test
+    void testWithInvalidJWT_create() throws Exception {
+        User user = Util.buildUser();
+        user.setRoles(null);
+
+        Authority canCreateUsers = new Authority();
+        canCreateUsers.setPermission("user:read");
+        Role role = new Role();
+        role.setId(1L);
+        role.setRoleName("ROLE_USER");
+        role.setAuthorities(Set.of(canCreateUsers));
+        user.setRoles(Set.of(role));
+
+        Mockito.when(userService.createUser(any(User.class))).thenReturn(user);
+
+        String token = jwtTokenProvider.generateJwtToken(new UserPrincipal(user));
+
+        mockMvc.perform(
+                post("/users/")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header(HttpHeaders.AUTHORIZATION, String.format("Bearer %s", token))
+                        .content(objectMapper.writeValueAsString(user))
+                        .accept(MediaType.APPLICATION_JSON)
+        )
+                .andExpect(status().isUnauthorized());
+
+        Mockito.verify(userService, Mockito.never()).createUser(any(User.class));
+    }
+
+//    @DisplayName("Test accessing endpoint with JWT & required 'user:delete' authority - no return")
+    @DisplayName("DELETE '/users/{publicId}' with 'user:delete' - no Content")
+    @Test
+    void testWithValidJWT_delete() throws Exception {
+        User user = Util.buildUser();
+        user.setRoles(null);
+
+        Authority canDeleteUsers = new Authority();
+        canDeleteUsers.setPermission("user:delete");
+        Role role = new Role();
+        role.setId(1L);
+        role.setRoleName("ROLE_ADMIN");
+        role.setAuthorities(Set.of(canDeleteUsers));
+        user.setRoles(Set.of(role));
+
+        Mockito.doNothing().when(userService).deleteUser(anyString());
+
+        String token = jwtTokenProvider.generateJwtToken(new UserPrincipal(user));
+
+        mockMvc.perform(
+                delete("/users/"+user.getPublicId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header(HttpHeaders.AUTHORIZATION, String.format("Bearer %s", token))
+                        .accept(MediaType.APPLICATION_JSON)
+        )
+                .andExpect(status().isNoContent());
+
+        Mockito.verify(userService, Mockito.times(1)).deleteUser(anyString());
+    }
+
+//    @DisplayName("Test accessing endpoint with JWT but without required 'user:delete' authority - returns Unauthorized")
+    @DisplayName("DELETE '/users/{publicId}' without 'user:delete' - Unauthorized")
+    @Test
+    void testWithInvalidJWT_delete() throws Exception {
+        User user = Util.buildUser();
+        user.setRoles(null);
+
+        Authority canDeleteUsers = new Authority();
+        canDeleteUsers.setPermission("user:read");
+        Role role = new Role();
+        role.setId(1L);
+        role.setRoleName("ROLE_ADMIN");
+        role.setAuthorities(Set.of(canDeleteUsers));
+        user.setRoles(Set.of(role));
+
+        Mockito.doNothing().when(userService).deleteUser(anyString());
+
+        String token = jwtTokenProvider.generateJwtToken(new UserPrincipal(user));
+
+        mockMvc.perform(
+                delete("/users/"+user.getPublicId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header(HttpHeaders.AUTHORIZATION, String.format("Bearer %s", token))
+                        .accept(MediaType.APPLICATION_JSON)
+        )
+                .andExpect(status().isUnauthorized());
+
+        Mockito.verify(userService, Mockito.never()).deleteUser(anyString());
     }
 }
