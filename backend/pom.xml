@@ -83,6 +83,12 @@
 			<version>${org.mapstruct.version}</version>
 		</dependency>
 
+		<!-- Google Guava (to help us build in-memory cache to count failed login attempts) -->
+		<dependency>
+			<groupId>com.google.guava</groupId>
+			<artifactId>guava</artifactId>
+			<version>31.1-jre</version>
+		</dependency>
 	</dependencies>
 
 	<build>

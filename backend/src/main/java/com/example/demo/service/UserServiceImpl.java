@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ExecutionException;
 
 @Slf4j
 
@@ -35,12 +36,14 @@ public class UserServiceImpl implements UserDetailsService, UserService {
     private final JWTTokenProvider jwtProvider;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
+    private final LoginAttemptService loginAttemptService;
 
-    public UserServiceImpl(UserRepository userRepository, JWTTokenProvider jwtProvider, RoleRepository roleRepository, PasswordEncoder passwordEncoder) {
+    public UserServiceImpl(UserRepository userRepository, JWTTokenProvider jwtProvider, RoleRepository roleRepository, PasswordEncoder passwordEncoder, LoginAttemptService loginAttemptService) {
         this.userRepository = userRepository;
         this.jwtProvider = jwtProvider;
         this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
+        this.loginAttemptService = loginAttemptService;
     }
 
     @Override
@@ -55,6 +58,20 @@ public class UserServiceImpl implements UserDetailsService, UserService {
         // update user
         userRepository.save(user);
         return new UserPrincipal(user);
+    }
+
+    public void validateLoginAttempt(User user) throws ExecutionException {
+        if(user.isNotLocked()){
+            if(loginAttemptService.hasExceededMaxAttempts(user.getUsername())){
+                user.setNotLocked(false);
+            }else{
+                user.setNotLocked(true);
+            }
+            userRepository.save(user);
+        }else{
+            // try to delete user from cache if exists - user is already locked.
+            loginAttemptService.evictUserFromLoginAttemptCache(user.getUsername());
+        }
     }
 
     @Override
@@ -99,11 +116,16 @@ public class UserServiceImpl implements UserDetailsService, UserService {
     public boolean passwordMatches(String username, String password) {
         try{
             User user = getUserByUsername(username);
-            return passwordEncoder.matches(password, user.getPassword());
+            boolean result = passwordEncoder.matches(password, user.getPassword());
+            if(result){
+                loginAttemptService.evictUserFromLoginAttemptCache(username);
+            }else{
+                loginAttemptService.addUserToLoginAttemptCache(username);
+            }
+            return result;
         }catch (UserNotFoundException e){
             return false;
         }
-
     }
 
     @Override

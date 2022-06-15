@@ -10,6 +10,7 @@ import com.example.demo.repository.RoleRepository;
 import com.example.demo.repository.UserRepository;
 import com.example.demo.resource.AuthenticationResource;
 import com.example.demo.resource.UserResource;
+import com.example.demo.service.LoginAttemptService;
 import com.example.demo.service.UserService;
 import com.example.demo.service.UserServiceImpl;
 import com.example.demo.utility.JWTTokenProvider;
@@ -74,6 +75,8 @@ public class AuthenticationResourceTest {
     RoleRepository roleRepository;
     @Mock
     BCryptPasswordEncoder passwordEncoder;
+    @Mock
+    LoginAttemptService loginAttemptService;
 
     String secretKey = "SuperLongAndVerySecureKey-[].~^+$&4";
     String tokenPrefix = "Bearer ";
@@ -98,7 +101,7 @@ public class AuthenticationResourceTest {
 //                .build();
 
         mockMvc = MockMvcBuilders
-                    .standaloneSetup(new AuthenticationResource(new UserServiceImpl(userRepository, jwtProvider, roleRepository, passwordEncoder)))
+                    .standaloneSetup(new AuthenticationResource(new UserServiceImpl(userRepository, jwtProvider, roleRepository, passwordEncoder, loginAttemptService)))
                 .setControllerAdvice(new ExceptionHandling())
                 .build();
     }

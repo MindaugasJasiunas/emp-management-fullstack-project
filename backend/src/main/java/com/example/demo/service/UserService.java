@@ -8,6 +8,7 @@ import com.example.demo.exception.domain.UsernameAlreadyExistsException;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.ExecutionException;
 
 public interface UserService {
     List<User> getUsers();
@@ -18,4 +19,5 @@ public interface UserService {
     User updateUser(User user, String publicId) throws Exception;
     void deleteUser(String publicId) throws UserNotFoundException;
     boolean passwordMatches(String username, String password);
+    void validateLoginAttempt(User user) throws ExecutionException;
 }
