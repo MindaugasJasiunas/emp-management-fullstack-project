@@ -33,6 +33,8 @@ public class ExceptionHandling {
     private static final String EMAIL_NOT_FOUND = "Email not found";
     private static final String EMAIL_EXISTS = "User with email %s already exists";
     private static final String USERNAME_EXISTS = "User with username %s already exists";
+//    private static final String USER_MALFORMED_PUBLIC_ID = "Error occurred while trying to find user by id. Try changing user id and try again.";
+    private static final String USER_NOT_FOUND = "User not found.";
 
     private ResponseEntity<HttpResponse> createHttpResponse(HttpStatus status, String message){
         HttpResponse response = new HttpResponse(status.value(), status, status.getReasonPhrase(), message);
@@ -96,14 +98,19 @@ public class ExceptionHandling {
         return createHttpResponse(HttpStatus.INTERNAL_SERVER_ERROR, ERROR_PROCESSING_FILE);
     }
 
-    @ExceptionHandler(Exception.class)
+    /*@ExceptionHandler(Exception.class)
     public ResponseEntity<HttpResponse> handleFallbackException(Exception exception){
         return createHttpResponse(HttpStatus.INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR);
-    }
+    }*/
 
     @ExceptionHandler(UserValidationException.class)
     public ResponseEntity<HttpResponse> handleUserValidationException(UserValidationException exception){
         return createHttpResponse(HttpStatus.BAD_REQUEST, exception.getMessage());
+    }
+
+    @ExceptionHandler(UserNotFoundException.class)
+    public ResponseEntity<HttpResponse> handleUserNotFoundException(UserNotFoundException exception){
+        return createHttpResponse(HttpStatus.BAD_REQUEST, USER_NOT_FOUND);
     }
 
 //    @ExceptionHandler(NoHandlerFoundException.class)
