@@ -9,17 +9,6 @@ import org.mapstruct.factory.Mappers;
 public interface UserMapper {
     UserMapper INSTANCE= Mappers.getMapper(UserMapper.class);
 
-    /*
-    // map to user class
-        User user = new User();
-        user.setUsername(register.username());
-        user.setPassword(register.password());
-        user.setEmail(register.email());
-        user.setFirstName(register.firstName());
-        user.setLastName(register.lastName());
-        user.setProfileImageUrl(register.profileImageUrl());
-        user.setDateOfBirth(register.dateOfBirth());
-     */
     @Mappings({
             @Mapping(target = "id", ignore = true),
             @Mapping(target = "publicId", ignore = true),
