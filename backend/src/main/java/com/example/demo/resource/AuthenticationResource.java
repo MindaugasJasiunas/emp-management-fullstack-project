@@ -4,6 +4,7 @@ import com.example.demo.HttpAuthLoginRequest;
 import com.example.demo.HttpAuthRegisterRequest;
 import com.example.demo.domain.User;
 import com.example.demo.exception.domain.EmailAlreadyExistsException;
+import com.example.demo.exception.domain.UserNotFoundException;
 import com.example.demo.exception.domain.UserValidationException;
 import com.example.demo.exception.domain.UsernameAlreadyExistsException;
 import com.example.demo.service.UserService;
@@ -47,15 +48,17 @@ public class AuthenticationResource {
             throw new BadCredentialsException("");
         }
         // check if user exists & generate JWT for that user
-        Optional<User> user = userService.getUserByUsername(request.username());
-        if(user.isEmpty()){
+        User user;
+        try{
+            user = userService.getUserByUsername(request.username());
+        }catch (UserNotFoundException e){
             throw new BadCredentialsException("");
         }
         if(!userService.passwordMatches(request.username(), request.password())){
             throw new BadCredentialsException("");
         }
 
-        String token = userService.generateTokenForUser(user.get().getUsername());
+        String token = userService.generateTokenForUser(user.getUsername());
 
         if(token == null){
             // error - user cannot be found in DB & therefore cannot generate JWT token

@@ -16,6 +16,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.transaction.Transactional;
 import java.time.LocalDate;
@@ -71,6 +72,7 @@ public class UserServiceImpl implements UserDetailsService, UserService {
         // encode password, set default role & save
         String encodedPass = passwordEncoder.encode(user.getPassword());
         user.setPassword(encodedPass);
+        user.setProfileImageUrl(ServletUriComponentsBuilder.fromCurrentContextPath().path("/user/image/profile/temp").toUriString()); // temporary profile image url - default
         if(roleRepository.findByRoleName("ROLE_USER").isPresent()){
             user.setRoles(Set.of(roleRepository.findByRoleName("ROLE_USER").get()));
             return userRepository.save(user);
@@ -95,16 +97,21 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 
     @Override
     public boolean passwordMatches(String username, String password) {
-        if(getUserByUsername(username).isPresent()){
-            User user = getUserByUsername(username).get();
+        try{
+            User user = getUserByUsername(username);
             return passwordEncoder.matches(password, user.getPassword());
-        };
-        return false;
+        }catch (UserNotFoundException e){
+            return false;
+        }
+
     }
 
     @Override
-    public Optional<User> getUserByUsername(String username) {
-        return userRepository.findByUsername(username);
+    public User getUserByUsername(String username) throws UserNotFoundException {
+        if(userRepository.findByUsername(username).isPresent()){
+            return userRepository.findByUsername(username).get();
+        }
+        throw new UserNotFoundException("");
     }
 
     public String generateTokenForUser(String username){

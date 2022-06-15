@@ -12,7 +12,7 @@ import java.util.Optional;
 public interface UserService {
     List<User> getUsers();
     User createUser(User user) throws Exception;
-    Optional<User> getUserByUsername(String username);
+    User getUserByUsername(String username) throws UserNotFoundException;
     String generateTokenForUser(String username);
     User getUserByPublicId(String publicId) throws UserNotFoundException;
     User updateUser(User user, String publicId) throws Exception;
