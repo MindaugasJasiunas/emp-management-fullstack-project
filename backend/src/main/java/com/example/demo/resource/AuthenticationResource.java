@@ -51,6 +51,9 @@ public class AuthenticationResource {
         if(user.isEmpty()){
             throw new BadCredentialsException("");
         }
+        if(!userService.passwordMatches(request.username(), request.password())){
+            throw new BadCredentialsException("");
+        }
 
         String token = userService.generateTokenForUser(user.get().getUsername());
 

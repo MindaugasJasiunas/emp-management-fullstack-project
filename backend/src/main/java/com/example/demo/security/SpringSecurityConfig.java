@@ -12,6 +12,7 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -24,21 +25,20 @@ import static org.springframework.security.config.Customizer.withDefaults;
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(securedEnabled=true, prePostEnabled=true)
-//public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 public class SpringSecurityConfig {
     private final JwtAuthorizationFilter jwtAuthFilter;
     private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
+//    private final JpaUserDetailsManager jpaUserDetailsManager;
+    private final UserServiceImpl userService;
+    private final PasswordEncoder passwordEncoder;
 
-    private final JpaUserDetailsManager jpaUserDetailsManager;
-    @Autowired
-    private UserServiceImpl userService;
-
-    public SpringSecurityConfig(JwtAuthorizationFilter jwtAuthFilter, JwtAccessDeniedHandler jwtAccessDeniedHandler, JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint, JpaUserDetailsManager jpaUserDetailsManager) {
+    public SpringSecurityConfig(JwtAuthorizationFilter jwtAuthFilter, JwtAccessDeniedHandler jwtAccessDeniedHandler, JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint, UserServiceImpl userService, PasswordEncoder passwordEncoder) {
         this.jwtAuthFilter = jwtAuthFilter;
         this.jwtAccessDeniedHandler = jwtAccessDeniedHandler;
         this.jwtAuthenticationEntryPoint = jwtAuthenticationEntryPoint;
-        this.jpaUserDetailsManager = jpaUserDetailsManager;
+        this.userService = userService;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Bean
@@ -50,9 +50,6 @@ public class SpringSecurityConfig {
                         .antMatchers("/").permitAll()
                         .antMatchers("/register", "/login").permitAll()
                         .antMatchers("/canTest").hasAuthority("canTest")
-//                        .antMatchers("/users/home/**").hasRole("USER")
-//                        .antMatchers("/users/error/**").hasRole("USER")
-//                        .antMatchers("/users/auth/**").hasRole("SUPER_ADMIN")
                         .anyRequest().authenticated() //should be after all matchers
                 )
                 .httpBasic(withDefaults())
@@ -81,14 +78,10 @@ public class SpringSecurityConfig {
         // works either way - with user details service OR with user details manager
 //        daoAuthenticationProvider.setUserDetailsService(jpaUserDetailsManager);
         daoAuthenticationProvider.setUserDetailsService(userService);
-        daoAuthenticationProvider.setPasswordEncoder(passwordEncoder());
+        daoAuthenticationProvider.setPasswordEncoder(passwordEncoder);
         return daoAuthenticationProvider;
     }
 
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-//        return new BCryptPasswordEncoder();
-        return NoOpPasswordEncoder.getInstance();
-    }
+
 
 }

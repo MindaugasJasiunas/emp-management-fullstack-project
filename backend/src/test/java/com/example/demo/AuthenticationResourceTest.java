@@ -37,6 +37,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
@@ -70,6 +72,8 @@ public class AuthenticationResourceTest {
     UserRepository userRepository;
     @Mock
     RoleRepository roleRepository;
+    @Mock
+    BCryptPasswordEncoder passwordEncoder;
 
     String secretKey = "SuperLongAndVerySecureKey-[].~^+$&4";
     String tokenPrefix = "Bearer ";
@@ -94,7 +98,7 @@ public class AuthenticationResourceTest {
 //                .build();
 
         mockMvc = MockMvcBuilders
-                    .standaloneSetup(new AuthenticationResource(new UserServiceImpl(userRepository, jwtProvider, roleRepository)))
+                    .standaloneSetup(new AuthenticationResource(new UserServiceImpl(userRepository, jwtProvider, roleRepository, passwordEncoder)))
                 .setControllerAdvice(new ExceptionHandling())
                 .build();
     }
@@ -198,6 +202,7 @@ public class AuthenticationResourceTest {
         HttpAuthLoginRequest request = new HttpAuthLoginRequest(userToReturn.getUsername(), "password");
 
         Mockito.when(userRepository.findByUsername(userToReturn.getUsername())).thenReturn(Optional.of(userToReturn));
+        Mockito.when(passwordEncoder.matches(anyString(), anyString())).thenReturn(true);
 
         MvcResult response = mockMvc.perform(
                 get("/login")
@@ -217,9 +222,11 @@ public class AuthenticationResourceTest {
         // Validate token
         assertTrue(jwtProvider.isTokenValid(jwtToken));
         assertEquals(userToReturn.getUsername(), jwtProvider.getSubject(jwtToken));
-        assertEquals(userToReturn.getRoles().iterator().next().getRoleName(), jwtProvider.getAuthoritiesFromToken(jwtToken).iterator().next().toString());
+        assertEquals(userToReturn.getAuthorities().iterator().next().getPermission(), jwtProvider.getAuthoritiesFromToken(jwtToken).iterator().next().toString());
 
-        Mockito.verify(userRepository, Mockito.times(3)).findByUsername(anyString());
+        Mockito.verify(userRepository, Mockito.times(5)).findByUsername(anyString());
+        Mockito.verify(passwordEncoder, Mockito.times(1)).matches(anyString(), anyString());
+
     }
 
 

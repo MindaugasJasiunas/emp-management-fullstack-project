@@ -17,4 +17,5 @@ public interface UserService {
     User getUserByPublicId(String publicId) throws UserNotFoundException;
     User updateUser(User user, String publicId) throws Exception;
     void deleteUser(String publicId) throws UserNotFoundException;
+    boolean passwordMatches(String username, String password);
 }

@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -32,11 +33,13 @@ public class UserServiceImpl implements UserDetailsService, UserService {
     private final UserRepository userRepository;
     private final JWTTokenProvider jwtProvider;
     private final RoleRepository roleRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public UserServiceImpl(UserRepository userRepository, JWTTokenProvider jwtProvider, RoleRepository roleRepository) {
+    public UserServiceImpl(UserRepository userRepository, JWTTokenProvider jwtProvider, RoleRepository roleRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.jwtProvider = jwtProvider;
         this.roleRepository = roleRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
@@ -65,7 +68,9 @@ public class UserServiceImpl implements UserDetailsService, UserService {
         }else if(userRepository.findByEmail(user.getEmail()).isPresent()){
             throw new EmailAlreadyExistsException(user.getEmail());
         }
-        // set default role & save
+        // encode password, set default role & save
+        String encodedPass = passwordEncoder.encode(user.getPassword());
+        user.setPassword(encodedPass);
         if(roleRepository.findByRoleName("ROLE_USER").isPresent()){
             user.setRoles(Set.of(roleRepository.findByRoleName("ROLE_USER").get()));
             return userRepository.save(user);
@@ -86,6 +91,15 @@ public class UserServiceImpl implements UserDetailsService, UserService {
     public void deleteUser(String publicId) throws UserNotFoundException {
         User userToDelete = getUserByPublicId(publicId);
         userRepository.deleteById(userToDelete.getId());
+    }
+
+    @Override
+    public boolean passwordMatches(String username, String password) {
+        if(getUserByUsername(username).isPresent()){
+            User user = getUserByUsername(username).get();
+            return passwordEncoder.matches(password, user.getPassword());
+        };
+        return false;
     }
 
     @Override
