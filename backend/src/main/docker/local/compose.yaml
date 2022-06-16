@@ -1,0 +1,7 @@
+version: '3.8'
+services:
+  devMail:
+    image: maildev/maildev
+    ports:
+      - 1080:1080
+      - 1025:1025

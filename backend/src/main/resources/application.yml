@@ -35,3 +35,34 @@ jwt:
   tokenPrefix: 'Bearer '
   tokenExpirationAfterDays: 14
 
+# GMAIL
+#mail:
+#  username: ${USERNAME:yourGmailName@gmail.com}
+#  password: ${PASSWORD:yourGmailPassword}
+#  simpleMailTransferProtocol: smtps
+#  fromEmail: support@example.com
+#  ccEmail: ''
+#  mailSubject: 'Application Name'
+#  gmailSmtpServer: smtp.gmail.com
+#  smtpHost: mail.smtp.host
+#  smtpAuth: mail.smtp.auth
+#  smtpPort: mail.smtp.port
+#  defaultPort: 465
+#  smtpStartTLSEnable: mail.smtp.starttls.enable
+#  smtpStartTLSRequired: mail.smtp.starttls.required
+
+#MAILDEV
+mail:
+  username: ${USERNAME:yourGmailName@gmail.com}
+  password: ${PASSWORD:yourGmailPassword}
+  simpleMailTransferProtocol: smtp
+  fromEmail: support@example.com
+  ccEmail: ''
+  mailSubject: 'Application Name'
+  gmailSmtpServer: localhost
+  smtpHost: mail.smtp.host
+  smtpAuth: mail.smtp.auth
+  smtpPort: mail.smtp.port
+  defaultPort: 1025
+  smtpStartTLSEnable: mail.smtp.starttls.enable
+  smtpStartTLSRequired: mail.smtp.starttls.required

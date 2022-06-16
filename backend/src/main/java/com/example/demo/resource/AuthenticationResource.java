@@ -4,6 +4,7 @@ import com.example.demo.HttpAuthLoginRequest;
 import com.example.demo.HttpAuthRegisterRequest;
 import com.example.demo.domain.User;
 import com.example.demo.domain.UserPrincipal;
+import com.example.demo.email.EmailService;
 import com.example.demo.exception.domain.*;
 import com.example.demo.service.UserService;
 import com.example.demo.utility.UserMapper;
@@ -19,9 +20,11 @@ import javax.validation.Valid;
 @RestController
 public class AuthenticationResource {
     private final UserService userService;
+    private final EmailService emailService;
 
-    public AuthenticationResource(UserService userService) {
+    public AuthenticationResource(UserService userService, EmailService emailService) {
         this.userService = userService;
+        this.emailService = emailService;
     }
 
     @RequestMapping(value = "/register", method = RequestMethod.POST)
@@ -34,7 +37,14 @@ public class AuthenticationResource {
         // map to user class
         User user = UserMapper.INSTANCE.HttpAuthRegisterRequestToUser(register);
 
-        return userService.createUser(user);
+        String rawPassword = user.getPassword();
+
+        user = userService.createUser(user);
+
+        //send email
+        emailService.sendNewPasswordEmail(user.getFirstName(), rawPassword, user.getEmail());
+
+        return user;
     }
 
     @RequestMapping(value = "/login", method = RequestMethod.GET)
