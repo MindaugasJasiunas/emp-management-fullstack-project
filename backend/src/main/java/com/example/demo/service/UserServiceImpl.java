@@ -2,15 +2,14 @@ package com.example.demo.service;
 
 import com.example.demo.domain.User;
 import com.example.demo.domain.UserPrincipal;
-import com.example.demo.exception.domain.EmailAlreadyExistsException;
-import com.example.demo.exception.domain.MalformedUserPublicIdException;
-import com.example.demo.exception.domain.UserNotFoundException;
-import com.example.demo.exception.domain.UsernameAlreadyExistsException;
+import com.example.demo.exception.domain.*;
 import com.example.demo.repository.RoleRepository;
 import com.example.demo.repository.UserRepository;
 import com.example.demo.utility.JWTTokenProvider;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.LockedException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -18,18 +17,15 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import javax.transaction.Transactional;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.ExecutionException;
 
 @Slf4j
 
 @Service
-@Transactional // manage propagation when dealing with 1 transaction
+//@Transactional // manage propagation when dealing with 1 transaction
 @Qualifier("userDetailsService")
 public class UserServiceImpl implements UserDetailsService, UserService {
     private final UserRepository userRepository;
@@ -48,29 +44,47 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException{
-        Optional<User> userOptional = userRepository.findByUsername(username);
-        if(userOptional.isEmpty()){
-            log.debug("Username not found: "+username);
-            throw new UsernameNotFoundException("User does not exist!");
-        }
-        User user = userOptional.get();
+        User user = getUserByUsername(username);
+        if(user == null) throw new UsernameNotFoundException("");
         user.setLastLoginDate(LocalDate.now());
         // update user
         userRepository.save(user);
         return new UserPrincipal(user);
     }
 
-    public void validateLoginAttempt(User user) throws ExecutionException {
+    @Override
+    public void validateUser(String username, String password) throws Exception {
+        // check if user exists
+        User user = getUserByUsername(username);
+        if(user == null) throw new BadCredentialsException("");
+
+        // check if user is not locked
         if(user.isNotLocked()){
-            if(loginAttemptService.hasExceededMaxAttempts(user.getUsername())){
+            if(loginAttemptService.hasExceededMaxAttempts(username)){
+                // lock the user
                 user.setNotLocked(false);
-            }else{
-                user.setNotLocked(true);
+                user = userRepository.save(user);  // @Transactional prevents immediate saving to DB
             }
-            userRepository.save(user);
-        }else{
+        }
+        if(!user.isNotLocked()){
             // try to delete user from cache if exists - user is already locked.
             loginAttemptService.evictUserFromLoginAttemptCache(user.getUsername());
+            throw new LockedException("");
+        }
+
+        // check if user active
+        if(!user.isActive()){
+            throw new UserDisabledException("");
+        }
+
+        // check if user password matches
+        boolean passwordMatch = passwordMatches(username, password);
+        if(passwordMatch){
+            // try to delete user from cache if exists - user is now successful.
+            loginAttemptService.evictUserFromLoginAttemptCache(username);
+        }else{
+            loginAttemptService.addUserToLoginAttemptCache(username);
+            throw new BadCredentialsException("");
         }
     }
 
@@ -113,29 +127,14 @@ public class UserServiceImpl implements UserDetailsService, UserService {
     }
 
     @Override
-    public boolean passwordMatches(String username, String password) {
-        try{
-            User user = getUserByUsername(username);
-            boolean result = passwordEncoder.matches(password, user.getPassword());
-            if(result){
-                loginAttemptService.evictUserFromLoginAttemptCache(username);
-            }else{
-                loginAttemptService.addUserToLoginAttemptCache(username);
-            }
-            return result;
-        }catch (UserNotFoundException e){
-            return false;
-        }
-    }
-
-    @Override
-    public User getUserByUsername(String username) throws UserNotFoundException {
+    public User getUserByUsername(String username) {
         if(userRepository.findByUsername(username).isPresent()){
             return userRepository.findByUsername(username).get();
         }
-        throw new UserNotFoundException("");
+        return null;
     }
 
+    @Override
     public String generateTokenForUser(String username){
         if(userRepository.findByUsername(username).isPresent()){
             User user = userRepository.findByUsername(username).get();
@@ -153,5 +152,11 @@ public class UserServiceImpl implements UserDetailsService, UserService {
         }catch (Exception e){
             throw new UserNotFoundException("");
         }
+    }
+
+    private boolean passwordMatches(String username, String password) {
+        User user = getUserByUsername(username);
+        if(user == null) return false;
+        return passwordEncoder.matches(password, user.getPassword());
     }
 }

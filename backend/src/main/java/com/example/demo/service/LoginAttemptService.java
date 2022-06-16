@@ -35,7 +35,6 @@ public class LoginAttemptService {
     }
 
     public void addUserToLoginAttemptCache(String username){
-        System.out.println("################################################ add "+username);
         // add user after first unsuccessful login (if not already in)
         int attempts = 0;
         try{
@@ -46,7 +45,11 @@ public class LoginAttemptService {
         loginAttemptCache.put(username, attempts);
     }
 
-    public boolean hasExceededMaxAttempts(String username) throws ExecutionException {
-        return loginAttemptCache.get(username) >= MAXIMUM_NUMBER_OF_ATTEMPTS;
+    public boolean hasExceededMaxAttempts(String username) {
+        try{
+            return loginAttemptCache.get(username) >= MAXIMUM_NUMBER_OF_ATTEMPTS;
+        }catch (ExecutionException e){
+            return false;
+        }
     }
 }
