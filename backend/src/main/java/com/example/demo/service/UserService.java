@@ -1,14 +1,9 @@
 package com.example.demo.service;
 
 import com.example.demo.domain.User;
-import com.example.demo.exception.domain.EmailAlreadyExistsException;
-import com.example.demo.exception.domain.MalformedUserPublicIdException;
 import com.example.demo.exception.domain.UserNotFoundException;
-import com.example.demo.exception.domain.UsernameAlreadyExistsException;
 
 import java.util.List;
-import java.util.Optional;
-import java.util.concurrent.ExecutionException;
 
 public interface UserService {
     List<User> getUsers();
