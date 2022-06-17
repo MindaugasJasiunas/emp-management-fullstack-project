@@ -1,15 +1,14 @@
 package com.example.demo.service;
 
-import com.example.demo.domain.PasswordReset;
 import com.example.demo.domain.User;
 import com.example.demo.domain.UserPrincipal;
 import com.example.demo.exception.domain.*;
-import com.example.demo.repository.PasswordResetRepository;
 import com.example.demo.repository.RoleRepository;
 import com.example.demo.repository.UserRepository;
 import com.example.demo.utility.JWTTokenProvider;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Primary;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.LockedException;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -28,6 +27,7 @@ import java.util.UUID;
 
 @Service
 //@Transactional // manage propagation when dealing with 1 transaction
+@Primary
 @Qualifier("userDetailsService")
 public class UserServiceImpl implements UserDetailsService, UserService {
     private final UserRepository userRepository;
