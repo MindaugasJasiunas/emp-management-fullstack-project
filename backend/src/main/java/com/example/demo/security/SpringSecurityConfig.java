@@ -43,7 +43,7 @@ public class SpringSecurityConfig {
                         .antMatchers("/users/**").permitAll()
 
                         .antMatchers("/").permitAll()
-                        .antMatchers("/register", "/login").permitAll()
+                        .antMatchers("/register", "/login", "/reset/**").permitAll()
                         .antMatchers("/canTest").hasAuthority("canTest")
                         .anyRequest().authenticated() //should be after all matchers
                 )

@@ -1,8 +1,10 @@
 package com.example.demo.service;
 
+import com.example.demo.domain.PasswordReset;
 import com.example.demo.domain.User;
 import com.example.demo.domain.UserPrincipal;
 import com.example.demo.exception.domain.*;
+import com.example.demo.repository.PasswordResetRepository;
 import com.example.demo.repository.RoleRepository;
 import com.example.demo.repository.UserRepository;
 import com.example.demo.utility.JWTTokenProvider;
@@ -138,6 +140,23 @@ public class UserServiceImpl implements UserDetailsService, UserService {
     }
 
     @Override
+    public User getUserByEmail(String email) {
+        if(userRepository.findByEmail(email).isPresent()){
+            return userRepository.findByEmail(email).get();
+        }
+        return null;
+    }
+
+    @Override
+    public void updatePassword(String emailByLink, String newPassword) {
+        if(!userRepository.findByEmail(emailByLink).isPresent()) return;
+        User userInDB= userRepository.findByEmail(emailByLink).get();
+        userInDB.setActive(true);
+        userInDB.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(userInDB);
+    }
+
+    @Override
     public String generateTokenForUser(String username){
         if(userRepository.findByUsername(username).isPresent()){
             User user = userRepository.findByUsername(username).get();
@@ -155,6 +174,15 @@ public class UserServiceImpl implements UserDetailsService, UserService {
         }catch (Exception e){
             throw new UserNotFoundException("");
         }
+    }
+
+    @Override
+    public User resetPassword(String email) {
+        // disable user
+        User user = getUserByEmail(email);
+        if(user==null) return null;
+        user.setActive(false);
+        return userRepository.save(user);
     }
 
     private boolean passwordMatches(String username, String password) {

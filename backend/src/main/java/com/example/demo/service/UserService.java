@@ -19,4 +19,8 @@ public interface UserService {
     User updateUser(User user, String publicId) throws Exception;
     void deleteUser(String publicId) throws UserNotFoundException;
     void validateUser(String username, String password) throws Exception;
+    User resetPassword(String email);
+    User getUserByEmail(String email);
+
+    void updatePassword(String emailByLink, String newPassword);
 }

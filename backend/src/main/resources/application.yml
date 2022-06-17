@@ -67,3 +67,5 @@ mail:
   defaultPort: 1025
   smtpStartTLSEnable: mail.smtp.starttls.enable
   smtpStartTLSRequired: mail.smtp.starttls.required
+
+base_reset_url: http://localhost:8080/reset/

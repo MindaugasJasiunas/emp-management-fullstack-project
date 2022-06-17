@@ -31,7 +31,7 @@ public class EmailService {
         return Session.getInstance(properties, null);
     }
 
-    private Message createEmail(String firstName, String password, String email) throws MessagingException {
+    private Message createRegistrationEmail(String firstName, String password, String email) throws MessagingException {
         Message msg = new MimeMessage(getEmailSession());
         msg.setFrom(new InternetAddress(emailConstant.FROM_EMAIL));
         msg.setRecipients(Message.RecipientType.TO, InternetAddress.parse(email, false));  // strict - email certain format
@@ -43,8 +43,24 @@ public class EmailService {
         return msg;
     }
 
+    private Message createResetPasswordEmail(String firstName, String link, String email) throws MessagingException {
+        Message msg = new MimeMessage(getEmailSession());
+        msg.setFrom(new InternetAddress(emailConstant.FROM_EMAIL));
+        msg.setRecipients(Message.RecipientType.TO, InternetAddress.parse(email, false));  // strict - email certain format
+        msg.setSubject(emailConstant.MAIL_SUBJECT);
+        msg.setText("Hello "+firstName+", \n \n You can update your account password by visiting "+link+" \n \n The Support Team");
+        msg.setSentDate(new Date());
+        msg.saveChanges();
+        return msg;
+    }
+
     public void sendNewPasswordEmail(String firstName, String password, String email) throws MessagingException {
-        Message msg = createEmail(firstName, password, email);
+        Message msg = createRegistrationEmail(firstName, password, email);
+        Transport.send(msg, emailConstant.USERNAME, emailConstant.PASSWORD);
+    }
+
+    public void sendResetPasswordEmail(String firstName, String link, String email) throws MessagingException {
+        Message msg = createResetPasswordEmail(firstName, link, email);
         Transport.send(msg, emailConstant.USERNAME, emailConstant.PASSWORD);
     }
 }
