@@ -41,7 +41,6 @@ public class SpringSecurityConfig {
         http
                 .authorizeHttpRequests((authz) -> authz
                         .antMatchers("/content/**").permitAll()
-                        .antMatchers("**").permitAll()
                         .antMatchers("/").permitAll()
                         .antMatchers("/register", "/login", "/reset/**").permitAll()
                         .antMatchers("/canTest").hasAuthority("canTest")
