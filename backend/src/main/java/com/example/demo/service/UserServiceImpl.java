@@ -104,9 +104,12 @@ public class UserServiceImpl implements UserDetailsService, UserService {
         String encodedPass = passwordEncoder.encode(user.getPassword());
         user.setPassword(encodedPass);
         user.setProfileImageUrl(ServletUriComponentsBuilder.fromCurrentContextPath().path("/user/image/profile/temp").toUriString()); // temporary profile image url - default
-        if(roleRepository.findByRoleName("ROLE_USER").isPresent()){
-            user.setRoles(Set.of(roleRepository.findByRoleName("ROLE_USER").get()));
-            return userRepository.save(user);
+        if(user.getRoles() == null || user.getRoles().isEmpty()){
+            // add default role
+            if(roleRepository.findByRoleName("ROLE_USER").isPresent()){
+                user.setRoles(Set.of(roleRepository.findByRoleName("ROLE_USER").get()));
+                return userRepository.save(user);
+            }
         }
         // else internal server error
         throw new Exception("");
