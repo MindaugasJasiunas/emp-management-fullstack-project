@@ -40,8 +40,8 @@ public class SpringSecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests((authz) -> authz
-                        .antMatchers("/users/**").permitAll()
-
+                        .antMatchers("/content/**").permitAll()
+                        .antMatchers("**").permitAll()
                         .antMatchers("/").permitAll()
                         .antMatchers("/register", "/login", "/reset/**").permitAll()
                         .antMatchers("/canTest").hasAuthority("canTest")

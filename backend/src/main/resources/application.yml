@@ -20,6 +20,8 @@ spring:
 # script-based initialization is performed by default only for embedded databases, to always initialize a database using scripts
   sql.init.mode: always
 
+  mvc:
+    static-path-pattern: /content/**
 #  mvc:
 #    throw-exception-if-no-handler-found: true
 #  web:
