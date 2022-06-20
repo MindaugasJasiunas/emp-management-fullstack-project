@@ -44,6 +44,8 @@ public class UserServiceImpl implements UserDetailsService, UserService {
     private final LoginAttemptService loginAttemptService;
     @Value("${server.defaultImageName}")
     private String defaultUserImageName;
+    @Value("${base_user_image_url}")
+    private String baseUserImageURL;
     private static final String PROFILE_IMAGE_NAME = "%s-profileImage.png";
 
     public UserServiceImpl(UserRepository userRepository, JWTTokenProvider jwtProvider, RoleRepository roleRepository, PasswordEncoder passwordEncoder, LoginAttemptService loginAttemptService) {
@@ -115,7 +117,7 @@ public class UserServiceImpl implements UserDetailsService, UserService {
         // encode password, set default role & save
         String encodedPass = passwordEncoder.encode(user.getPassword());
         user.setPassword(encodedPass);
-        user.setProfileImageUrl("http://localhost:8080/users/image/"+user.getUsername()+"/"+defaultUserImageName); // temporary profile image url - default
+        user.setProfileImageUrl(baseUserImageURL + user.getUsername() + "/" + defaultUserImageName); // temporary profile image url - default
         if(user.getRoles() == null || user.getRoles().isEmpty()){
             // add default role
             if(roleRepository.findByRoleName("ROLE_USER").isPresent()){
@@ -160,19 +162,16 @@ public class UserServiceImpl implements UserDetailsService, UserService {
         return null;
     }
 
-//    @Transactional
     @Override
     public void updateProfilePicture(String email, MultipartFile newProfileImage) throws IOException {
-        //get user by email, get user image url, get image name, if image not default & exists in path - delete
-        //then save new image to that path & update user profileImgURL & save user.
-
         Path root = Paths.get("").toAbsolutePath();
         Path fullPath = Paths.get(root.toString(), File.separator, "application", File.separator, "profileImage");
         if(!Files.exists(fullPath)) Files.createDirectories(fullPath);
+
         if(newProfileImage.getOriginalFilename() == null) return;
 
         User user = getUserByEmail(email);
-        String profileImageName = user.getProfileImageUrl().substring(user.getProfileImageUrl().lastIndexOf("/")+1);
+//        String profileImageName = user.getProfileImageUrl().substring(user.getProfileImageUrl().lastIndexOf("/")+1);
 
         Files.deleteIfExists(Paths.get(fullPath.toString(), File.separator, String.format(PROFILE_IMAGE_NAME, user.getPublicId())));
 
@@ -180,7 +179,7 @@ public class UserServiceImpl implements UserDetailsService, UserService {
         Files.copy(newProfileImage.getInputStream(), fullPath.resolve(String.format(PROFILE_IMAGE_NAME, user.getPublicId())));
 
         // save new image & update user profileImageURL
-        user.setProfileImageUrl("http://localhost:8080/users/image/"+user.getUsername()+"/"+ String.format(PROFILE_IMAGE_NAME, user.getPublicId()));
+        user.setProfileImageUrl(baseUserImageURL + user.getUsername() + "/" + String.format(PROFILE_IMAGE_NAME, user.getPublicId()));
         userRepository.save(user);
     }
 
@@ -196,13 +195,6 @@ public class UserServiceImpl implements UserDetailsService, UserService {
         if(!Files.exists(path)) return null;
 
         // return image as byte array
-//        BufferedImage bImage = ImageIO.read(new File(path.toString()+"/"+profileImageTitle));
-//        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-//        ImageIO.write(bImage, "jpg", bos );
-//        return bos.toByteArray();
-//        System.out.println("file found & will be returned as byte array");
-//        System.out.println(path);
-//        return "a".getBytes(StandardCharsets.UTF_8);
         return Files.readAllBytes(path);
     }
 

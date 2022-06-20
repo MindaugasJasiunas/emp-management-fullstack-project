@@ -72,3 +72,4 @@ mail:
   smtpStartTLSRequired: mail.smtp.starttls.required
 
 base_reset_url: http://localhost:8080/reset/
+base_user_image_url: http://localhost:8080/users/image/
