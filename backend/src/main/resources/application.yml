@@ -29,6 +29,7 @@ spring:
 #      add-mappings: false
 
 server:
+  defaultImageName: dollar-gill-oKtRncpWNu0-unsplash.png
   error:
     whitelabel:
       enabled: false

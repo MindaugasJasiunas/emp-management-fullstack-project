@@ -2,21 +2,19 @@ package com.example.demo.resource;
 
 import com.example.demo.domain.User;
 import com.example.demo.exception.domain.*;
-import com.example.demo.repository.UserRepository;
 import com.example.demo.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
-import java.util.Collections;
+import java.io.IOException;
 import java.util.List;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/users")
@@ -72,7 +70,31 @@ public class UserResource extends ExceptionHandling {  // ExceptionHandling clas
         }
     }
 
+    @PreAuthorize("hasAuthority('user:update')")
+    @RequestMapping(value = "/updateProfileImage", method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<Void> updateProfileImage(@RequestParam(value = "email") String email, @RequestParam(value = "profileImage") MultipartFile profileImg) throws IOException {
+        try{
+            userService.updateProfilePicture(email, profileImg);
+        }catch (Exception e){
+//            System.err.println(e);
+            return ResponseEntity.badRequest().build();
+        }
+        return ResponseEntity.ok().build();
+    }
 
+    @RequestMapping(value = "/image/{username}/{fileName}", method = RequestMethod.GET, produces = MediaType.IMAGE_PNG_VALUE)
+    public ResponseEntity<byte[]> getProfileImage(@PathVariable(value = "username") String username, @PathVariable(value = "fileName") String fileName) {
+        // return image as byte array
+        try {
+            byte[] image = userService.getUserProfileImage(username, fileName);
+            if(image == null) throw new IOException();
+            return ResponseEntity.ok(image);
+        }
+        catch (IOException e){
+            System.err.println(e);
+            return ResponseEntity.badRequest().build();
+        }
+    }
 
 
 }

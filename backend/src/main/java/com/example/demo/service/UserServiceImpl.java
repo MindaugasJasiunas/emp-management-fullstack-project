@@ -8,6 +8,7 @@ import com.example.demo.repository.UserRepository;
 import com.example.demo.utility.JWTTokenProvider;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Primary;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.LockedException;
@@ -16,8 +17,14 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.transaction.Transactional;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
@@ -35,6 +42,9 @@ public class UserServiceImpl implements UserDetailsService, UserService {
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
     private final LoginAttemptService loginAttemptService;
+    @Value("${server.defaultImageName}")
+    private String defaultUserImageName;
+    private static final String PROFILE_IMAGE_NAME = "%s-profileImage.png";
 
     public UserServiceImpl(UserRepository userRepository, JWTTokenProvider jwtProvider, RoleRepository roleRepository, PasswordEncoder passwordEncoder, LoginAttemptService loginAttemptService) {
         this.userRepository = userRepository;
@@ -105,7 +115,7 @@ public class UserServiceImpl implements UserDetailsService, UserService {
         // encode password, set default role & save
         String encodedPass = passwordEncoder.encode(user.getPassword());
         user.setPassword(encodedPass);
-        user.setProfileImageUrl(ServletUriComponentsBuilder.fromCurrentContextPath().path("/user/image/profile/temp").toUriString()); // temporary profile image url - default
+        user.setProfileImageUrl("http://localhost:8080/users/image/"+user.getUsername()+"/"+defaultUserImageName); // temporary profile image url - default
         if(user.getRoles() == null || user.getRoles().isEmpty()){
             // add default role
             if(roleRepository.findByRoleName("ROLE_USER").isPresent()){
@@ -122,6 +132,9 @@ public class UserServiceImpl implements UserDetailsService, UserService {
         User userFromDB = getUserByPublicId(publicId);
         user.setId(userFromDB.getId());
         user.setPublicId(userFromDB.getPublicId());
+        if(user.getRoles() == null || user.getRoles().isEmpty()){
+            user.setRoles(userFromDB.getRoles());
+        }
         return userRepository.save(user);
     }
 
@@ -145,6 +158,52 @@ public class UserServiceImpl implements UserDetailsService, UserService {
             return userRepository.findByEmail(email).get();
         }
         return null;
+    }
+
+//    @Transactional
+    @Override
+    public void updateProfilePicture(String email, MultipartFile newProfileImage) throws IOException {
+        //get user by email, get user image url, get image name, if image not default & exists in path - delete
+        //then save new image to that path & update user profileImgURL & save user.
+
+        Path root = Paths.get("").toAbsolutePath();
+        Path fullPath = Paths.get(root.toString(), File.separator, "application", File.separator, "profileImage");
+        if(!Files.exists(fullPath)) Files.createDirectories(fullPath);
+        if(newProfileImage.getOriginalFilename() == null) return;
+
+        User user = getUserByEmail(email);
+        String profileImageName = user.getProfileImageUrl().substring(user.getProfileImageUrl().lastIndexOf("/")+1);
+
+        Files.deleteIfExists(Paths.get(fullPath.toString(), File.separator, String.format(PROFILE_IMAGE_NAME, user.getPublicId())));
+
+        // create new file
+        Files.copy(newProfileImage.getInputStream(), fullPath.resolve(String.format(PROFILE_IMAGE_NAME, user.getPublicId())));
+
+        // save new image & update user profileImageURL
+        user.setProfileImageUrl("http://localhost:8080/users/image/"+user.getUsername()+"/"+ String.format(PROFILE_IMAGE_NAME, user.getPublicId()));
+        userRepository.save(user);
+    }
+
+    @Override
+    public byte[] getUserProfileImage(String username, String fileName) throws IOException {
+        // get image address
+        String profileImageURL = getUserByUsername(username).getProfileImageUrl();
+        String profileImageTitle = profileImageURL.substring(profileImageURL.lastIndexOf("/")+1);
+
+        // find image in server
+        Path root = Paths.get("").toAbsolutePath();
+        Path path = Paths.get(root.toString(), File.separator, "application", File.separator, "profileImage", File.separator, profileImageTitle);
+        if(!Files.exists(path)) return null;
+
+        // return image as byte array
+//        BufferedImage bImage = ImageIO.read(new File(path.toString()+"/"+profileImageTitle));
+//        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+//        ImageIO.write(bImage, "jpg", bos );
+//        return bos.toByteArray();
+//        System.out.println("file found & will be returned as byte array");
+//        System.out.println(path);
+//        return "a".getBytes(StandardCharsets.UTF_8);
+        return Files.readAllBytes(path);
     }
 
     @Override
