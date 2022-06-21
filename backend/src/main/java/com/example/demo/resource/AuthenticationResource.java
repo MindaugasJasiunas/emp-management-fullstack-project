@@ -76,6 +76,7 @@ public class AuthenticationResource {
 
         HttpHeaders headers= new HttpHeaders();
         headers.set(HttpHeaders.AUTHORIZATION, String.format("Bearer %s", token));
+        headers.set(HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS, "Content-Length, Authorization");
         return ResponseEntity.ok().headers(headers).build();
     }
 
