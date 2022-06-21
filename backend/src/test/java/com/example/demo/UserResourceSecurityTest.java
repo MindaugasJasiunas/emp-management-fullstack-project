@@ -4,14 +4,11 @@ import com.example.demo.domain.Authority;
 import com.example.demo.domain.Role;
 import com.example.demo.domain.User;
 import com.example.demo.domain.UserPrincipal;
-import com.example.demo.repository.UserRepository;
 import com.example.demo.resource.UserResource;
-import com.example.demo.service.UserService;
 import com.example.demo.service.UserServiceImpl;
 import com.example.demo.utility.JWTTokenProvider;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import org.checkerframework.checker.units.qual.A;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -19,7 +16,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,17 +24,13 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.*;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -77,18 +69,6 @@ public class UserResourceSecurityTest {
                 .build();
     }
 
-//    @DisplayName("Test accessing main '/' endpoint without JWT authentication - returns OK")
-    @DisplayName("GET '/' without JWT - OK")
-    @Test
-    void testWithoutJWT_mainPage() throws Exception {
-        mockMvc.perform(
-                get("/")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON)
-        )
-                .andExpect(status().isOk());
-    }
-
 //    @DisplayName("Test accessing endpoint without JWT authentication - returns Forbidden")
     @DisplayName("GET '/users/' without JWT - Forbidden")
     @Test
@@ -101,7 +81,7 @@ public class UserResourceSecurityTest {
                 .andExpect(status().isForbidden())
                 .andExpect(jsonPath("$.message", Matchers.is("You need to login to access this page")));
 
-        Mockito.verify(userService, Mockito.never()).getUsers();
+        Mockito.verify(userService, Mockito.never()).getUsers(anyInt(), anyInt());
     }
 
 //    @DisplayName("Test accessing endpoint with JWT & required 'user:read' authority - returns mocked list of users")
@@ -111,7 +91,7 @@ public class UserResourceSecurityTest {
         User user = Util.buildUser();
         user.setRoles(null);
 
-        Mockito.when(userService.getUsers()).thenReturn(List.of(user));
+        Mockito.when(userService.getUsers(anyInt(), anyInt())).thenReturn(List.of(user));
 
         Authority canReadUsers = new Authority();
         canReadUsers.setPermission("user:read");
@@ -130,11 +110,12 @@ public class UserResourceSecurityTest {
         )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", Matchers.hasSize(1)))
-                .andExpect(jsonPath("$[0].id", Matchers.is(user.getId().intValue())))
                 .andExpect(jsonPath("$[0].publicId", Matchers.is(user.getPublicId().toString())))
                 .andExpect(jsonPath("$[0].username", Matchers.is(user.getUsername())))
                 .andExpect(jsonPath("$[0].email", Matchers.is(user.getEmail())))
                 .andExpect(jsonPath("$[0].roles[0].roleName", Matchers.is(user.getRoles().iterator().next().getRoleName())));
+
+        Mockito.verify(userService, Mockito.times(1)).getUsers(anyInt(), anyInt());
     }
 
 //    @DisplayName("Test accessing endpoint with JWT but INVALID authorities - returns error")
@@ -187,21 +168,22 @@ public class UserResourceSecurityTest {
 
         String token = jwtTokenProvider.generateJwtToken(new UserPrincipal(user));
 
+        String workaround = objectMapper.writeValueAsString(user).substring(0, objectMapper.writeValueAsString(user).lastIndexOf('}'))+", \"password\":\"password\" }";
+        System.out.println(workaround);
+
         mockMvc.perform(
                 put("/users/"+user.getPublicId())
                         .contentType(MediaType.APPLICATION_JSON)
                         .header(HttpHeaders.AUTHORIZATION, String.format("Bearer %s", token))
-                        .content(objectMapper.writeValueAsString(user))
+                        .content(workaround)
                         .accept(MediaType.APPLICATION_JSON)
         )
         .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.id", Matchers.is(user.getId().intValue())))
                 .andExpect(jsonPath("$.publicId", Matchers.is(user.getPublicId().toString())))
                 .andExpect(jsonPath("$.username", Matchers.is(user.getUsername())))
                 .andExpect(jsonPath("$.email", Matchers.is(user.getEmail())))
                 .andExpect(jsonPath("$.firstName", Matchers.is(user.getFirstName())))
                 .andExpect(jsonPath("$.lastName", Matchers.is(user.getLastName())))
-                .andExpect(jsonPath("$.password", Matchers.is(user.getPassword())))
                 .andExpect(jsonPath("$.profileImageUrl", Matchers.is(user.getProfileImageUrl())))
                 .andExpect(jsonPath("$.roles[0].id", Matchers.is(user.getRoles().iterator().next().getId().intValue())))
                 .andExpect(jsonPath("$.roles[0].roleName", Matchers.is(user.getRoles().iterator().next().getRoleName())));
@@ -228,20 +210,20 @@ public class UserResourceSecurityTest {
 
         String token = jwtTokenProvider.generateJwtToken(new UserPrincipal(user));
 
+        String workaround = objectMapper.writeValueAsString(user).substring(0, objectMapper.writeValueAsString(user).lastIndexOf('}'))+", \"password\":\"password\" }";
+
         mockMvc.perform(
                 post("/users/")
                         .contentType(MediaType.APPLICATION_JSON)
                         .header(HttpHeaders.AUTHORIZATION, String.format("Bearer %s", token))
-                        .content(objectMapper.writeValueAsString(user))
+                        .content(workaround)
                         .accept(MediaType.APPLICATION_JSON)
         )
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.id", Matchers.is(user.getId().intValue())))
                 .andExpect(jsonPath("$.publicId", Matchers.is(user.getPublicId().toString())))
                 .andExpect(jsonPath("$.firstName", Matchers.is(user.getFirstName())))
                 .andExpect(jsonPath("$.lastName", Matchers.is(user.getLastName())))
                 .andExpect(jsonPath("$.email", Matchers.is(user.getEmail())))
-                .andExpect(jsonPath("$.password", Matchers.is(user.getPassword())))
                 .andExpect(jsonPath("$.username", Matchers.is(user.getUsername())))
                 .andExpect(jsonPath("$.profileImageUrl", Matchers.is(user.getProfileImageUrl())))
                 .andExpect(jsonPath("$.roles[0].roleName", Matchers.is(user.getRoles().iterator().next().getRoleName())))

@@ -105,11 +105,6 @@ public class UserServiceImpl implements UserDetailsService, UserService {
     }
 
     @Override
-    public Iterable<User> getUsers(){
-        return getUsers(0,20);
-    }
-
-    @Override
     public Iterable<User> getUsers(int page, int size){
         Pageable pageAndSize= PageRequest.of(page, size);
         return userRepository.findAll(pageAndSize);

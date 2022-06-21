@@ -8,7 +8,6 @@ import java.io.IOException;
 import java.util.List;
 
 public interface UserService {
-    Iterable<User> getUsers();
     Iterable<User> getUsers(int page, int size);
     User createUser(User user) throws Exception;
     User getUserByUsername(String username) throws UserNotFoundException;
