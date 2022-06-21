@@ -35,7 +35,7 @@ server:
       enabled: false
 
 jwt:
-  secretKey: 'SuperLongAndVerySecureKey-[].~^+$&4'
+  secretKey: SuperLongAndVerySecureKey-[].~^+$&4
   tokenPrefix: 'Bearer '
   tokenExpirationAfterDays: 14
 
