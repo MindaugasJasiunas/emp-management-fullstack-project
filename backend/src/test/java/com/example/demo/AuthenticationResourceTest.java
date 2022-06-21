@@ -4,13 +4,16 @@ import com.example.demo.domain.Authority;
 import com.example.demo.domain.Role;
 import com.example.demo.domain.User;
 import com.example.demo.domain.UserPrincipal;
+import com.example.demo.email.EmailService;
 import com.example.demo.exception.domain.ExceptionHandling;
 import com.example.demo.exception.domain.UserValidationException;
+import com.example.demo.repository.PasswordResetRepository;
 import com.example.demo.repository.RoleRepository;
 import com.example.demo.repository.UserRepository;
 import com.example.demo.resource.AuthenticationResource;
 import com.example.demo.resource.UserResource;
 import com.example.demo.service.LoginAttemptService;
+import com.example.demo.service.PasswordResetService;
 import com.example.demo.service.UserService;
 import com.example.demo.service.UserServiceImpl;
 import com.example.demo.utility.JWTTokenProvider;
@@ -77,6 +80,12 @@ public class AuthenticationResourceTest {
     BCryptPasswordEncoder passwordEncoder;
     @Mock
     LoginAttemptService loginAttemptService;
+    @Mock
+    EmailService emailService;
+    @Mock
+    PasswordResetRepository passwordResetRepository;
+    @Mock
+    PasswordResetService passwordResetService;
 
     String secretKey = "SuperLongAndVerySecureKey-[].~^+$&4";
     String tokenPrefix = "Bearer ";
@@ -101,7 +110,7 @@ public class AuthenticationResourceTest {
 //                .build();
 
         mockMvc = MockMvcBuilders
-                    .standaloneSetup(new AuthenticationResource(new UserServiceImpl(userRepository, jwtProvider, roleRepository, passwordEncoder, loginAttemptService)))
+                    .standaloneSetup(new AuthenticationResource(new UserServiceImpl(userRepository, jwtProvider, roleRepository, passwordEncoder, loginAttemptService), passwordResetService, emailService))
                 .setControllerAdvice(new ExceptionHandling())
                 .build();
     }
@@ -133,12 +142,10 @@ public class AuthenticationResourceTest {
         )
                 .andExpect(status().isCreated())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
-                .andExpect(jsonPath("$.id", Matchers.is(userToReturn.getId().intValue())))
                 .andExpect(jsonPath("$.publicId", Matchers.equalTo(userToReturn.getPublicId().toString())))
                 .andExpect(jsonPath("$.firstName", Matchers.equalTo(userToReturn.getFirstName())))
                 .andExpect(jsonPath("$.lastName", Matchers.equalTo(userToReturn.getLastName())))
                 .andExpect(jsonPath("$.email", Matchers.equalTo(userToReturn.getEmail())))
-                .andExpect(jsonPath("$.password", Matchers.equalTo(userToReturn.getPassword())))
                 .andExpect(jsonPath("$.username", Matchers.equalTo(userToReturn.getUsername())))
                 .andExpect(jsonPath("$.profileImageUrl", Matchers.equalTo(userToReturn.getProfileImageUrl())))
                 .andExpect(jsonPath("$.joinDate[0]", Matchers.equalTo(userToReturn.getJoinDate().getYear())))
@@ -227,20 +234,9 @@ public class AuthenticationResourceTest {
         assertEquals(userToReturn.getUsername(), jwtProvider.getSubject(jwtToken));
         assertEquals(userToReturn.getAuthorities().iterator().next().getPermission(), jwtProvider.getAuthoritiesFromToken(jwtToken).iterator().next().toString());
 
-        Mockito.verify(userRepository, Mockito.times(5)).findByUsername(anyString());
+        Mockito.verify(userRepository, Mockito.times(6)).findByUsername(anyString());
         Mockito.verify(passwordEncoder, Mockito.times(1)).matches(anyString(), anyString());
 
     }
 
-
-    /*@Test
-    //@WithMockUser(roles="CUSTOMER")
-    @WithUserDetails("admin")
-    void testingAuthWithAuth() throws Exception {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        System.out.println("AUTH:::: "+authentication.getPrincipal());
-        mockMvc
-                .perform(get("/users/").principal(authentication))
-                .andExpect(status().isOk());
-    }*/
 }
