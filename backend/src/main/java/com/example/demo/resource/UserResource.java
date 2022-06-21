@@ -28,8 +28,8 @@ public class UserResource extends ExceptionHandling {  // ExceptionHandling clas
     @PreAuthorize("hasAuthority('user:read')")
     @RequestMapping(value = "/", method = RequestMethod.GET)
     @ResponseStatus(HttpStatus.OK)
-    public List<User> getUsers(){
-        return userService.getUsers();
+    public Iterable<User> getUsers(@RequestParam(value = "page", defaultValue = "0") int page, @RequestParam(value = "size", defaultValue = "20") int size){
+        return userService.getUsers(page, size);
     }
 
     @PreAuthorize("hasAuthority('user:read')")

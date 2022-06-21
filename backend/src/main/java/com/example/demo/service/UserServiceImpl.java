@@ -10,6 +10,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Primary;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.LockedException;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -103,8 +105,14 @@ public class UserServiceImpl implements UserDetailsService, UserService {
     }
 
     @Override
-    public List<User> getUsers(){
-        return userRepository.findAll();
+    public Iterable<User> getUsers(){
+        return getUsers(0,20);
+    }
+
+    @Override
+    public Iterable<User> getUsers(int page, int size){
+        Pageable pageAndSize= PageRequest.of(page, size);
+        return userRepository.findAll(pageAndSize);
     }
 
     @Override
