@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { AuthenticationService } from './service/authentication.service';
 
 @Component({
   selector: 'app-root',
@@ -9,5 +10,17 @@ import { Component } from '@angular/core';
 export class AppComponent {
   title = 'frontend';
 
-  constructor() {}
+  constructor(){}
+  /*constructor(private authService: AuthenticationService) {
+    authService.login({ username: 'johnd', password: 'password' }).subscribe({
+      next: (data) => {
+        console.log(data);
+        console.log(data.headers.get('Authorization'));
+      },
+      error: (err: Error) => {
+        console.log(err);
+        console.error(err.message);
+      },
+    });
+  }*/
 }
