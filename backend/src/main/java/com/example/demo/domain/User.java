@@ -1,6 +1,7 @@
 package com.example.demo.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.Setter;
@@ -27,7 +28,7 @@ public class User implements Serializable {
     @SequenceGenerator( name = "user_sequence", sequenceName = "user_sequence", allocationSize = 1)
     @GeneratedValue( strategy = GenerationType.SEQUENCE, generator = "user_sequence")
     @Column(nullable = false, updatable = false)
-    @JsonIgnore
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private Long id;
 //    @Column(columnDefinition = "varchar(36)", unique = true, nullable= false)
     private UUID publicId = UUID.randomUUID();
@@ -38,8 +39,8 @@ public class User implements Serializable {
     @NotBlank(message = "Username is required")
     private String username;
     @NotBlank(message = "Password is required")
-    @Size(min = 8, message = "Password must be atleast 8 characters long")
-    @JsonIgnore
+    @Size(min = 8, message = "Password must be at least 8 characters long")
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
     @NotBlank(message = "Email is required")
     @Email
