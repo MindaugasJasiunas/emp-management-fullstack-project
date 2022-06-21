@@ -57,7 +57,8 @@ public class AuthenticationResource {
         return user;
     }
 
-    @RequestMapping(value = "/login", method = RequestMethod.GET)
+//    @CrossOrigin(origins = "http://localhost:4200")
+    @RequestMapping(value = "/login", method = RequestMethod.POST)
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<Void> getTokenForUser(@Valid @RequestBody HttpAuthLoginRequest request, BindingResult result) throws Exception {
         // check if request has errors

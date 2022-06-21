@@ -13,6 +13,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 
 import static org.springframework.security.config.Customizer.withDefaults;
@@ -52,7 +54,7 @@ public class SpringSecurityConfig {
                 .csrf().disable()
 
                 // specify what can connect to our API
-                .cors() // allow OPTIONS request
+                 .cors() // allow OPTIONS request
                 .and()
 
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS) // Spring Security, dont manage or create sessions (REST API)
@@ -87,4 +89,14 @@ public class SpringSecurityConfig {
 //        return new DefaultAuthenticationEventPublisher(applicationEventPublisher);
 //    }
 
+    @Bean
+    public WebMvcConfigurer corsConfigurer() {
+        return new WebMvcConfigurer() {
+            @Override
+            public void addCorsMappings(CorsRegistry registry) {
+                registry.addMapping("/login").allowedOrigins("http://localhost:4200");
+                registry.addMapping("/register").allowedOrigins("http://localhost:4200");
+            }
+        };
+    }
 }
