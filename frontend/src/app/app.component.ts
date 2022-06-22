@@ -12,7 +12,7 @@ import { AuthenticationService } from './service/authentication.service';
 export class AppComponent {
   title = 'frontend';
 
-  // constructor(){}
+  constructor() {}
 
   /*constructor(private authService: AuthenticationService) {
     authService.login({ username: 'johnd', password: 'password' }).subscribe({
@@ -27,7 +27,7 @@ export class AppComponent {
     });
   }*/
 
-  constructor(private authService: AuthenticationService) {
+  /*constructor(private authService: AuthenticationService) {
     authService
       .register({
         username: 'temp',
@@ -47,5 +47,5 @@ export class AppComponent {
           console.log(err.error.message);
         },
       });
-  }
+  }*/
 }
