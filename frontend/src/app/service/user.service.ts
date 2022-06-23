@@ -18,20 +18,6 @@ export class UserService {
 
   constructor(private http: HttpClient) {}
 
-  private testAuthHeader() {
-    const headerDict = {
-      'Content-Type': 'application/json',
-      Accept: 'application/json',
-      'Access-Control-Allow-Headers': 'Content-Type',
-      Authorization:
-        'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJhdWQiOiJBcHBOYW1lIEFkbWluaXN0cmF0aW9uIiwic3ViIjoiYWRtaW4iLCJpc3MiOiJBcHBOYW1lIiwiZXhwIjoxNjU3MDk1NzE4LCJpYXQiOjE2NTU4ODYxMTgsImF1dGhvcml0aWVzIjpbInVzZXI6ZGVsZXRlIiwidXNlcjpjcmVhdGUiLCJ1c2VyOnJlYWQiLCJ1c2VyOnVwZGF0ZSJdfQ.gzkY6q0yf775HGqlw5P-LvRScY9Xu8v5fufuz7JnBitv0h91DRLITa6ic2BWjGdzcBopondPmOlZ1uKe6JyMPQ',
-    };
-    const requestOptions = {
-      headers: new HttpHeaders(headerDict),
-    };
-    return requestOptions;
-  }
-
   public getUsers(): Observable<any | HttpErrorResponse> {
     return this.http.get<User[]>(this.usersHost);
   }
@@ -111,13 +97,6 @@ export class UserService {
         // get progress events of an image upload
         reportProgress: true,
         observe: 'events',
-
-        // params: {
-        //   email: email,
-        // },
-        // headers: new HttpHeaders({
-        //   Authorization:
-        //     'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJhdWQiOiJBcHBOYW1lIEFkbWluaXN0cmF0aW9uIiwic3ViIjoiYWRtaW4iLCJpc3MiOiJBcHBOYW1lIiwiZXhwIjoxNjU3MDk1NzE4LCJpYXQiOjE2NTU4ODYxMTgsImF1dGhvcml0aWVzIjpbInVzZXI6ZGVsZXRlIiwidXNlcjpjcmVhdGUiLCJ1c2VyOnJlYWQiLCJ1c2VyOnVwZGF0ZSJdfQ.gzkY6q0yf775HGqlw5P-LvRScY9Xu8v5fufuz7JnBitv0h91DRLITa6ic2BWjGdzcBopondPmOlZ1uKe6JyMPQ',
       }
     );
   }
