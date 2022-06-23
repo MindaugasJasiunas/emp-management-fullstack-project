@@ -4,9 +4,11 @@
 
 export const environment = {
   production: false,
-  apiUrl: 'http://localhost:8080/',
+  apiUrl: 'http://localhost:8080',
   apiLoginUrl: 'http://localhost:8080/login',
-  apiRegisterUrl: 'http://localhost:8080/register'
+  apiRegisterUrl: 'http://localhost:8080/register',
+  apiResetPasswordUrl: 'http://localhost:8080/reset',
+  usersApiUrl: 'http://localhost:8080/users',
 };
 
 /*

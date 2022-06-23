@@ -12,21 +12,17 @@ import { JwtHelperService } from '@auth0/angular-jwt';
 
 @Injectable({ providedIn: 'root' })
 export class AuthenticationService {
-  private hostLogin = environment.apiLoginUrl;
-  private hostRegister = environment.apiRegisterUrl;
+  public hostLogin = environment.apiLoginUrl;
+  public hostRegister = environment.apiRegisterUrl;
+  public hostResetPassword = environment.apiResetPasswordUrl;
   private token: string | null = null;
   private loggedInUsername: string | null = null;
   private jwtHelper = new JwtHelperService();
 
   constructor(private http: HttpClient) {}
 
-  public login(loginRequest: {
-    username: string;
-    password: string;
-  }): Observable<HttpResponse<any> | HttpErrorResponse> {
-    return this.http.post<any>(this.hostLogin, loginRequest, {
-      observe: 'response',
-    });
+  public login(loginRequest: { username: string, password: string}): Observable<HttpResponse<any> | HttpErrorResponse> {
+    return this.http.post<any>(this.hostLogin, loginRequest, { observe: 'response' });
   }
 
   public register(registerRequest: {
@@ -38,10 +34,7 @@ export class AuthenticationService {
     profileImageUrl: string;
     dateOfBirth: Date;
   }): Observable<User | HttpErrorResponse> {
-    return this.http.post<User | HttpErrorResponse>(
-      this.hostRegister,
-      registerRequest
-    );
+    return this.http.post<User | HttpErrorResponse>( this.hostRegister, registerRequest );
   }
 
   public logout(): void {
@@ -51,7 +44,7 @@ export class AuthenticationService {
     // remove items from localStorage - token, user information
     localStorage.removeItem('user');
     localStorage.removeItem('token');
-    localStorage.removeItem('user');
+    localStorage.removeItem('users');
   }
 
   public saveToken(token: string): void {
