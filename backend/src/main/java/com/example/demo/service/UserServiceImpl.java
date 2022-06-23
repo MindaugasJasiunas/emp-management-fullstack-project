@@ -117,6 +117,8 @@ public class UserServiceImpl implements UserDetailsService, UserService {
         }else if(userRepository.findByEmail(user.getEmail()).isPresent()){
             throw new EmailAlreadyExistsException(user.getEmail());
         }
+        user.setId(0L);
+        user.setPublicId(UUID.randomUUID());
         // encode password, set default role & save
         String encodedPass = passwordEncoder.encode(user.getPassword());
         user.setPassword(encodedPass);

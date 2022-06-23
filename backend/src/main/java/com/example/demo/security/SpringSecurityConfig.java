@@ -94,8 +94,9 @@ public class SpringSecurityConfig {
         return new WebMvcConfigurer() {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
-                registry.addMapping("/login").allowedOrigins("http://localhost:4200");
-                registry.addMapping("/register").allowedOrigins("http://localhost:4200");
+                registry.addMapping("/login").allowedOrigins("http://localhost:4200").allowedMethods("POST");
+                registry.addMapping("/register").allowedOrigins("http://localhost:4200").allowedMethods("POST");
+                registry.addMapping("/users/**").allowedOrigins("http://localhost:4200").allowedMethods("GET", "POST", "PUT", "DELETE");
             }
         };
     }

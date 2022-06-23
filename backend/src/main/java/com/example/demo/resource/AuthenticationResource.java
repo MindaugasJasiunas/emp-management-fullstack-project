@@ -81,7 +81,6 @@ public class AuthenticationResource {
     }
 
     @RequestMapping(value = "/reset", method = RequestMethod.POST)
-    @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<Void> resetPassword(@Valid @RequestBody HttpPasswordResetRequest email, BindingResult result) throws EmailNotFoundException, MessagingException {
         if(result.hasErrors()){
             System.out.println(result.getAllErrors());
@@ -94,8 +93,7 @@ public class AuthenticationResource {
         return ResponseEntity.ok().build();
     }
 
-    @RequestMapping(value = "/reset/{resetLink}", method = RequestMethod.GET)
-    @ResponseStatus(HttpStatus.OK)
+    @RequestMapping(value = "/reset/{resetLink}", method = RequestMethod.POST)
     public ResponseEntity<Void> newPassword(@Valid @RequestBody HttpNewPasswordRequest request, @PathVariable("resetLink") String resetLink) {
         if(!request.newPassword().equals(request.newPasswordRepeated())) return ResponseEntity.badRequest().build();
 
