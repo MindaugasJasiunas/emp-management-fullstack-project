@@ -13,6 +13,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { AuthInterceptor } from './service/authentication.interceptor';
 import { AuthGuard } from './guard/auth.guard';
+import { NotificationModule } from './notification.module';
 
 @NgModule({
   declarations: [
@@ -30,6 +31,7 @@ import { AuthGuard } from './guard/auth.guard';
     FormsModule,
     ReactiveFormsModule,
     HttpClientModule,
+    NotificationModule
   ],
   providers: [
     {
@@ -37,7 +39,7 @@ import { AuthGuard } from './guard/auth.guard';
       useClass: AuthInterceptor,
       multi: true,
     },
-    AuthGuard
+    AuthGuard,
   ],
   bootstrap: [AppComponent],
 })
