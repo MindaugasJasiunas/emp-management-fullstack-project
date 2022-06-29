@@ -86,5 +86,4 @@ export class LoginComponent implements OnInit, OnDestroy {
     }
     return null;
   }
-
 }

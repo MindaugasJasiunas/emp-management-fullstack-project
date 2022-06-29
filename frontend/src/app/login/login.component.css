@@ -30,3 +30,9 @@ mat-card-content {
   display: flex;
   justify-content: flex-end;
 }
+
+.info {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}

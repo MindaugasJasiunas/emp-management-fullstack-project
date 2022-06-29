@@ -27,8 +27,10 @@
       <p *ngIf="showError()" class="error">{{ showError() }}</p>
 
       <div class="button">
-        <button mat-button type="button" routerLink="/register">Register</button>
         <button mat-button type="submit">Login</button>
+      </div>
+      <div class="info">
+        Don't have an account yet? <button mat-flat-button type="button" routerLink="/register">Sign Up</button>
       </div>
     </form>
   </mat-card-content>
