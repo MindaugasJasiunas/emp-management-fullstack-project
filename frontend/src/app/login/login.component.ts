@@ -59,7 +59,6 @@ export class LoginComponent implements OnInit, OnDestroy {
           })
           .subscribe({
             next: (response: HttpResponse<User>) => {
-              console.log(response);
               this.authenticationService.saveToken(
                 response.headers.get('authorization')!
               );
