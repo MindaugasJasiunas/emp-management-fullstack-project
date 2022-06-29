@@ -24,12 +24,11 @@
         </mat-form-field>
       </p>
 
-      <p *ngIf="error" class="error">
-        {{ error }}
-      </p>
+      <p *ngIf="showError()" class="error">{{ showError() }}</p>
 
       <div class="button">
-        <button type="submit" mat-button>Login</button>
+        <button mat-button type="button" routerLink="/register">Register</button>
+        <button mat-button type="submit">Login</button>
       </div>
     </form>
   </mat-card-content>

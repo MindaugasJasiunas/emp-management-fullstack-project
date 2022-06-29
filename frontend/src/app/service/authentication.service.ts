@@ -21,8 +21,13 @@ export class AuthenticationService {
 
   constructor(private http: HttpClient) {}
 
-  public login(loginRequest: { username: string, password: string}): Observable<HttpResponse<any> | HttpErrorResponse> {
-    return this.http.post<any>(this.hostLogin, loginRequest, { observe: 'response' });
+  public login(loginRequest: {
+    username: string;
+    password: string;
+  }): Observable<HttpResponse<User>> {
+    return this.http.post<User>(this.hostLogin, loginRequest, {
+      observe: 'response',
+    });
   }
 
   public register(registerRequest: {
@@ -31,10 +36,10 @@ export class AuthenticationService {
     password: string;
     firstName: string;
     lastName: string;
-    profileImageUrl: string;
+    // profileImageUrl: string;
     dateOfBirth: Date;
-  }): Observable<User | HttpErrorResponse> {
-    return this.http.post<User | HttpErrorResponse>( this.hostRegister, registerRequest );
+  }): Observable<User> {
+    return this.http.post<User>(this.hostRegister, registerRequest);
   }
 
   public logout(): void {
@@ -71,7 +76,7 @@ export class AuthenticationService {
 
   public isLoggedIn(): boolean {
     this.loadTokenFromLocalCache();
-    if (this.token != null && this.token !== '') {
+    if (this.token !== null && this.token !== '') {
       if (this.jwtHelper.decodeToken(this.token).sub != null || '') {
         if (!this.jwtHelper.isTokenExpired(this.token)) {
           this.loggedInUsername = this.jwtHelper.decodeToken(this.token).sub;
