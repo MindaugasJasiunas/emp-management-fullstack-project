@@ -2,3 +2,13 @@
   flex: 1 1 auto; /* position spacer & everything after that to the right*/
 }
 
+a:link,
+a:hover,
+a:visited,
+a:active {
+  color: white;
+  text-decoration: none;
+  padding: 14px 25px;
+  text-align: center;
+  display: inline-block;
+}
