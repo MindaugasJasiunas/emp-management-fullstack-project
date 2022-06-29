@@ -60,7 +60,7 @@ public class AuthenticationResource {
 //    @CrossOrigin(origins = "http://localhost:4200")
     @RequestMapping(value = "/login", method = RequestMethod.POST)
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<Void> getTokenForUser(@Valid @RequestBody HttpAuthLoginRequest request, BindingResult result) throws Exception {
+    public ResponseEntity<User> getTokenForUser(@Valid @RequestBody HttpAuthLoginRequest request, BindingResult result) throws Exception {
         // check if request has errors
         if (result.hasErrors()) {
             throw new UserValidationException(result.getAllErrors().get(0).getDefaultMessage());
@@ -69,6 +69,7 @@ public class AuthenticationResource {
         // check if user exists & generate JWT for that user
         userService.validateUser(request.username(), request.password());
 
+        User userToReturn = userService.getUserByUsername(request.username());
         // if error not thrown from validateUser - generate token & return
 
         String token = userService.generateTokenForUser(request.username());
@@ -77,7 +78,7 @@ public class AuthenticationResource {
         HttpHeaders headers= new HttpHeaders();
         headers.set(HttpHeaders.AUTHORIZATION, String.format("Bearer %s", token));
         headers.set(HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS, "Content-Length, Authorization");
-        return ResponseEntity.ok().headers(headers).build();
+        return ResponseEntity.ok().headers(headers).body(userToReturn);
     }
 
     @RequestMapping(value = "/reset", method = RequestMethod.POST)
