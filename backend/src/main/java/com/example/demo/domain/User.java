@@ -31,6 +31,7 @@ public class User implements Serializable {
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private Long id;
 //    @Column(columnDefinition = "varchar(36)", unique = true, nullable= false)
+    @Column(unique = true)
     private UUID publicId = UUID.randomUUID();
     @NotBlank(message = "First name is required")
     private String firstName;
