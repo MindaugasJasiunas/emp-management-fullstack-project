@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { AuthenticationService } from '../service/authentication.service';
 
 @Component({
   selector: 'app-header',
@@ -6,5 +7,9 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./header.component.css']
 })
 export class HeaderComponent {
-  constructor() { }
+  constructor(private authenticationService: AuthenticationService) {}
+
+  isLoggedIn(): boolean{
+    return this.authenticationService.isLoggedIn();
+  }
 }

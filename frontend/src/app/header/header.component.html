@@ -3,13 +3,16 @@
     <a routerLink="/users">Users</a>
     <span class="example-spacer"></span>
     <div class="navbar-right">
-      <a routerLink="/login">Login</a>
-      <a routerLink="/logout">Logout</a>
-      <a routerLink="/register">Register</a>
-
-      <a routerLink="/profile">
-        <mat-icon aria-label="User Account">account_circle</mat-icon>
-      </a>
+      <span *ngIf="isLoggedIn()">
+        <a routerLink="/profile">
+          <mat-icon aria-label="User Account">account_circle</mat-icon>
+        </a>
+        <a routerLink="/logout"><mat-icon>logout</mat-icon></a>
+      </span>
+      <span *ngIf="!isLoggedIn()">
+        <a routerLink="/login">Login</a>
+        <a routerLink="/register">Register</a>
+      </span>
     </div>
   </mat-toolbar-row>
 </mat-toolbar>
