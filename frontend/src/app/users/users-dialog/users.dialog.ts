@@ -33,7 +33,7 @@ export class UsersDialog implements OnInit {
       ]),
       active: new FormControl(),
       notLocked: new FormControl(),
-      dob: new FormControl(),
+      dob: new FormControl(null, Validators.required),
       file: new FormControl(),
       fileSource: new FormControl(),
     });
