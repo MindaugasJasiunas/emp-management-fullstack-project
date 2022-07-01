@@ -10,11 +10,11 @@ export class User {
     public lastName: string,
     public profileImageUrl: string,
     public dateOfBirth: string,
-    public age: number | null,
-    public joinDate: string,
-    public lastLoginDate: string,
     public active: boolean,
     public notLocked: boolean,
-    public roles: Role[] | null
+    public roles: Role[] | null,
+    public joinDate?: string,
+    public lastLoginDate?: string,
+    public age?: number | null,
   ) {}
 }
