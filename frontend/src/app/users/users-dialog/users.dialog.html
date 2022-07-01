@@ -28,6 +28,15 @@
       <input matInput type="password" formControlName="password"/>
       <mat-error *ngIf="data.publicId === null && !form.get('password')?.valid && form.get('password')?.touched">{{getErrorMessage('password')}}</mat-error>
     </mat-form-field>
+    <mat-form-field appearance="fill">
+      <mat-label>Date of birth</mat-label>
+      <input matInput [matDatepicker]="picker" formControlName="dob">
+      <mat-hint>MM/DD/YYYY</mat-hint>
+      <mat-datepicker-toggle matSuffix [for]="picker">
+        <mat-icon matDatepickerToggleIcon>keyboard_arrow_down</mat-icon>
+      </mat-datepicker-toggle>
+      <mat-datepicker #picker></mat-datepicker>
+    </mat-form-field>
 
     <br/>
     <mat-checkbox formControlName="active" color="primary">

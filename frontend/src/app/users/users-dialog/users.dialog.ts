@@ -33,6 +33,7 @@ export class UsersDialog implements OnInit {
       ]),
       active: new FormControl(),
       notLocked: new FormControl(),
+      dob: new FormControl(),
       file: new FormControl(),
       fileSource: new FormControl(),
     });
@@ -44,7 +45,8 @@ export class UsersDialog implements OnInit {
       firstName: this.data.firstName,
       lastName: this.data.lastName,
       active: this.data.active,
-      notLocked: this.data.notLocked
+      notLocked: this.data.notLocked,
+      dob: this.data.dateOfBirth
     });
   }
 
