@@ -137,6 +137,20 @@ public class UserServiceImpl implements UserDetailsService, UserService {
     @Override
     public User updateUser(User user, String publicId) throws Exception {
         User userFromDB = getUserByPublicId(publicId);
+
+        if(!user.getUsername().equalsIgnoreCase(userFromDB.getUsername())) {
+            // check if username is changed - there is no other user with it.
+            if(userRepository.findByUsername(user.getUsername()).isPresent()) {
+                throw new UsernameAlreadyExistsException(user.getUsername());
+            }
+        }
+        if(!user.getEmail().equalsIgnoreCase(userFromDB.getEmail())) {
+            // check if username is changed - there is no other user with it.
+            if(userRepository.findByEmail(user.getEmail()).isPresent()) {
+                throw new EmailAlreadyExistsException(user.getEmail());
+            }
+        }
+
         user.setId(userFromDB.getId());
         user.setPublicId(userFromDB.getPublicId());
         user.setPassword(passwordEncoder.encode(user.getPassword()));
