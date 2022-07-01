@@ -1,0 +1,57 @@
+<h1 mat-dialog-title>
+  {{ data.publicId ? 'Updating '+data.firstName : 'Creating new user' }}
+</h1>
+<div mat-dialog-content>
+  <form [formGroup]="form">
+    <mat-form-field appearance="fill">
+      <mat-label>Username</mat-label>
+      <input matInput type="text" formControlName="username"/>
+      <mat-error *ngIf="!form.get('username')?.valid && form.get('username')?.touched">{{getErrorMessage('username')}}</mat-error>
+    </mat-form-field>
+    <mat-form-field appearance="fill">
+      <mat-label>Email</mat-label>
+      <input matInput type="email" formControlName="email"/>
+      <mat-error *ngIf="!form.get('email')?.valid && form.get('email')?.touched">{{getErrorMessage('email')}}</mat-error>
+    </mat-form-field>
+    <mat-form-field appearance="fill">
+      <mat-label>First Name</mat-label>
+      <input matInput type="text" formControlName="firstName"/>
+      <mat-error *ngIf="!form.get('firstName')?.valid && form.get('firstName')?.touched">{{getErrorMessage('firstName')}}</mat-error>
+    </mat-form-field>
+    <mat-form-field appearance="fill">
+      <mat-label>Last Name</mat-label>
+      <input matInput type="text" formControlName="lastName"/>
+      <mat-error *ngIf="!form.get('lastName')?.valid && form.get('lastName')?.touched">{{getErrorMessage('lastName')}}</mat-error>
+    </mat-form-field>
+    <mat-form-field appearance="fill">
+      <mat-label>Password</mat-label>
+      <input matInput type="password" formControlName="password"/>
+      <mat-error *ngIf="data.publicId === null && !form.get('password')?.valid && form.get('password')?.touched">{{getErrorMessage('password')}}</mat-error>
+    </mat-form-field>
+
+    <br/>
+    <mat-checkbox formControlName="active" color="primary">
+      active
+    </mat-checkbox>
+    <mat-checkbox formControlName="notLocked" color="primary">
+      not locked
+    </mat-checkbox>
+
+
+    <br/>
+    <!-- file input doesn't work with mat-form-field -->
+    <!-- <mat-form-field appearance="fill"> -->
+     <mat-label>Profile Picture</mat-label>
+      <input #fileInput hidden="true" type="file" onclick="this.value=null" (change)="onFileChange($event)" accept=".png" formControlName="file"/>
+      <button mat-flat-button color="primary" (click)="fileInput.click()">Choose Image</button>
+    <!-- </mat-form-field> -->
+
+  </form>
+</div>
+<!-- <div mat-dialog-actions align="end"> -->
+<mat-dialog-actions align="end">
+  <button mat-button (click)="onNoClick()">No Thanks</button>
+  <button mat-button mat-dialog-close>No Thanks</button>
+  <button mat-button [mat-dialog-close]="form.value" cdkFocusInitial [disabled]="form.invalid">Ok</button>
+</mat-dialog-actions>
+<!-- </div> -->
