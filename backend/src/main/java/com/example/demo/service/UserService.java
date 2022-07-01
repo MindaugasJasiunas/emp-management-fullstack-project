@@ -18,8 +18,8 @@ public interface UserService {
     void validateUser(String username, String password) throws Exception;
     User resetPassword(String email);
     User getUserByEmail(String email);
-    void updateProfilePicture(String email, MultipartFile profileImage) throws IOException;
-    byte[] getUserProfileImage(String username, String fileName) throws IOException;
+    void updateProfilePicture(String publicId, MultipartFile profileImage) throws IOException, UserNotFoundException;
+    byte[] getUserProfileImage(String username, String fileName) throws IOException, UserNotFoundException;
 
     void updatePassword(String emailByLink, String newPassword);
 }

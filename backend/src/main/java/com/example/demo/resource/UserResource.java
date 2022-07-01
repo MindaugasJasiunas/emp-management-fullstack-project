@@ -82,15 +82,15 @@ public class UserResource extends ExceptionHandling {  // ExceptionHandling clas
         return ResponseEntity.ok().build();
     }
 
-    @RequestMapping(value = "/image/{username}/{fileName}", method = RequestMethod.GET, produces = MediaType.IMAGE_PNG_VALUE)
-    public ResponseEntity<byte[]> getProfileImage(@PathVariable(value = "username") String username, @PathVariable(value = "fileName") String fileName) {
+    @RequestMapping(value = "/image/{publicId}/{fileName}", method = RequestMethod.GET, produces = MediaType.IMAGE_PNG_VALUE)
+    public ResponseEntity<byte[]> getProfileImage(@PathVariable(value = "publicId") String publicId, @PathVariable(value = "fileName") String fileName) {
         // return image as byte array
         try {
-            byte[] image = userService.getUserProfileImage(username, fileName);
+            byte[] image = userService.getUserProfileImage(publicId, fileName);
             if(image == null) throw new IOException();
             return ResponseEntity.ok(image);
         }
-        catch (IOException e){
+        catch (IOException | UserNotFoundException e){
             System.err.println(e);
             return ResponseEntity.badRequest().build();
         }

@@ -173,6 +173,7 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 
     @Override
     public void updateProfilePicture(String email, MultipartFile newProfileImage) throws IOException {
+        if(newProfileImage == null) return;
         Path root = Paths.get("").toAbsolutePath();
         Path fullPath = Paths.get(root.toString(), File.separator, "application", File.separator, "profileImage");
         if(!Files.exists(fullPath)) Files.createDirectories(fullPath);
@@ -188,14 +189,14 @@ public class UserServiceImpl implements UserDetailsService, UserService {
         Files.copy(newProfileImage.getInputStream(), fullPath.resolve(String.format(PROFILE_IMAGE_NAME, user.getPublicId())));
 
         // save new image & update user profileImageURL
-        user.setProfileImageUrl(baseUserImageURL + user.getUsername() + "/" + String.format(PROFILE_IMAGE_NAME, user.getPublicId()));
+        user.setProfileImageUrl(baseUserImageURL + user.getPublicId() + "/" + String.format(PROFILE_IMAGE_NAME, user.getPublicId()));
         userRepository.save(user);
     }
 
     @Override
-    public byte[] getUserProfileImage(String username, String fileName) throws IOException {
+    public byte[] getUserProfileImage(String publicId, String fileName) throws IOException, UserNotFoundException {
         // get image address
-        String profileImageURL = getUserByUsername(username).getProfileImageUrl();
+        String profileImageURL = getUserByPublicId(publicId).getProfileImageUrl();
         String profileImageTitle = profileImageURL.substring(profileImageURL.lastIndexOf("/")+1);
 
         // find image in server
