@@ -12,4 +12,7 @@ export class HeaderComponent {
   isLoggedIn(): boolean{
     return this.authenticationService.isLoggedIn();
   }
+  getUsername(): string | null{
+    return this.authenticationService.getUserFromLocalCache().username;
+  }
 }

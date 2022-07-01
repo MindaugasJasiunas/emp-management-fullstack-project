@@ -4,6 +4,7 @@
     <span class="example-spacer"></span>
     <div class="navbar-right">
       <span *ngIf="isLoggedIn()">
+        Hello {{getUsername()}}
         <a routerLink="/profile">
           <mat-icon aria-label="User Account">account_circle</mat-icon>
         </a>
