@@ -171,6 +171,12 @@ export class UsersComponent implements OnInit, OnDestroy, AfterViewInit {
                     );
                   }
                 });
+              }else{
+                this.notificationService.showNotification(
+                  'success',
+                  `User ${updatedUser.username} successfully updated.`
+                );
+                this.refresh();
               }
             },
             error: (err: HttpErrorResponse) => {
@@ -251,6 +257,12 @@ export class UsersComponent implements OnInit, OnDestroy, AfterViewInit {
                     );
                   }
                 });
+              }else{
+                this.notificationService.showNotification(
+                  'success',
+                  `User ${newDummyUser.username} successfully updated.`
+                );
+                this.refresh();
               }
             },
             error: (err: HttpErrorResponse) => {
