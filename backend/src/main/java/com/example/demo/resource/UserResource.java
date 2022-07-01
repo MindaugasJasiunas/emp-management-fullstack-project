@@ -31,7 +31,6 @@ public class UserResource extends ExceptionHandling {  // ExceptionHandling clas
     public Iterable<User> getUsers(@RequestParam(value = "page", defaultValue = "0") int page, @RequestParam(value = "size", defaultValue = "20") int size){
         return userService.getUsers(page, size);
     }
-
     @PreAuthorize("hasAuthority('user:read')")
     @RequestMapping(value = "/{publicId}", method = RequestMethod.GET)
     @ResponseStatus(HttpStatus.OK)
@@ -40,7 +39,7 @@ public class UserResource extends ExceptionHandling {  // ExceptionHandling clas
     }
 
     @PreAuthorize("hasAuthority('user:create')")
-    @RequestMapping(value = "/", method = RequestMethod.POST)
+    @RequestMapping(value = {"/", ""}, method = RequestMethod.POST)
     @ResponseStatus(HttpStatus.CREATED)
     public User createUser(@Valid @RequestBody User user, BindingResult result) throws Exception {
         if (result.hasErrors()) {

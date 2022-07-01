@@ -122,7 +122,7 @@ public class UserServiceImpl implements UserDetailsService, UserService {
         // encode password, set default role & save
         String encodedPass = passwordEncoder.encode(user.getPassword());
         user.setPassword(encodedPass);
-        user.setProfileImageUrl(baseUserImageURL + user.getUsername() + "/" + defaultUserImageName); // temporary profile image url - default
+        user.setProfileImageUrl(baseUserImageURL + user.getPublicId() + "/" + defaultUserImageName); // temporary profile image url - default
         if(user.getRoles() == null || user.getRoles().isEmpty()){
             // add default role
             if(roleRepository.findByRoleName("ROLE_USER").isPresent()){
