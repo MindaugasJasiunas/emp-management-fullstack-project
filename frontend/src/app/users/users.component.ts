@@ -11,7 +11,6 @@ import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
 import { ActivatedRoute, Data } from '@angular/router';
 import { BehaviorSubject, Subscription, take } from 'rxjs';
-import { Paginator } from '../model/paginator.model';
 import { Role } from '../model/role.model';
 import { User } from '../model/user.model';
 import { NotificationService } from '../service/notification.service';
