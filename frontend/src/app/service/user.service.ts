@@ -22,58 +22,24 @@ export class UserService {
     return this.http.get<User[]>(this.usersHost);
   }
 
-  public createUser(formData: FormData): Observable<User | HttpErrorResponse> {
+  public getUsers2(page: number, size: number): Observable<any> {
+    return this.http.get<User[]>(
+      `${this.usersHost}/?size=${size}&page=${page}`
+    );
+  }
+
+  public createUser(user: User /*formData: FormData*/): Observable<User> {
     // return this.http.post<User>(this.usersHost, formData);
-    const user = new User(
-      null,
-      'usr',
-      'usr@example.com',
-      'password',
-      'Usr',
-      'Lst',
-      'http://',
-      '1999-05-22',
-      null,
-      '1999-05-22',
-      '1999-05-22',
-      true,
-      true,
-      null
-    );
-    return this.http.post<User>(this.usersHost, user /*this.testAuthHeader()*/);
+    return this.http.post<User>(this.usersHost, user);
   }
 
-  public updateUser(formData: FormData): Observable<User | HttpErrorResponse> {
+  public updateUser(user: User /*formData: FormData*/): Observable<User> {
     // return this.http.put<User>(`${this.usersHost}${publicId}`, formData);
-    const publicId: string = 'e1849a7d-ec51-46a7-8afc-ec2a77e00bd6';
-    const user = new User(
-      null,
-      'usr',
-      'usr@example.com',
-      'password',
-      'Usr',
-      'Lst',
-      'http://',
-      '1999-05-22',
-      null,
-      '1999-05-22',
-      '1999-05-22',
-      true,
-      true,
-      null
-    );
-    return this.http.put<User>(
-      `${this.usersHost}/${publicId}`,
-      user
-      /*this.testAuthHeader()*/
-    );
+    return this.http.put<User>(`${this.usersHost}/${user.publicId}`, user);
   }
 
-  public deleteUser(publicId: string): Observable<void | HttpErrorResponse> {
-    return this.http.delete<void>(
-      `${this.usersHost}/${publicId}`
-      /*this.testAuthHeader()*/
-    );
+  public deleteUser(publicId: string): Observable<void> {
+    return this.http.delete<void>(`${this.usersHost}/${publicId}`);
   }
 
   // maybe move to authentication service !?
@@ -88,31 +54,32 @@ export class UserService {
   }
 
   public updateProfileImage(
-    formData: FormData
-  ): Observable<HttpEvent<any> | HttpErrorResponse> {
+    data: FormData
+  ): Observable<HttpEvent<any>> {
     return this.http.post<any>(
       `${this.usersHost}/updateProfileImage`,
-      formData,
+      data,
       {
         // get progress events of an image upload
         reportProgress: true,
-        observe: 'events',
+        // observe: 'events',
+        // headers : new HttpHeaders({ 'Content-Type': 'multipart/form-data' }) // setting manually does not set multipart boundary - throws error in the backend
       }
     );
   }
 
-  public addUsersToLocalStorage(users: User[]) {
+  /*public addUsersToLocalStorage(users: User[]) {
     localStorage.setItem('users', JSON.stringify(users));
-  }
+  }*/
 
-  public getUsersFromLocalStorage(): User[] | null {
+  /*public getUsersFromLocalStorage(): User[] | null {
     if (localStorage.getItem('users')) {
       return JSON.parse(localStorage.getItem('users')!);
     }
     return null;
-  }
+  }*/
 
-  public createUserFormData(
+  /*public createUserFormData(
     loggedInUsername: string,
     user: User,
     profileImage: File
@@ -131,5 +98,5 @@ export class UserService {
     formData.append('isNotLocked', JSON.stringify(user.notLocked));
     formData.append('dateOfBirth', user.dateOfBirth);
     return formData;
-  }
+  }*/
 }
