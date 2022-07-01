@@ -14,6 +14,8 @@ import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { AuthInterceptor } from './service/authentication.interceptor';
 import { AuthGuard } from './guard/auth.guard';
 import { NotificationModule } from './notification.module';
+import { UsersDialog } from './users/users-dialog/users.dialog';
+import { RegisterComponent } from './register/register.component';
 
 @NgModule({
   declarations: [
@@ -22,6 +24,8 @@ import { NotificationModule } from './notification.module';
     ProfileComponent,
     UsersComponent,
     LoginComponent,
+    UsersDialog,
+    RegisterComponent
   ],
   imports: [
     BrowserModule,
@@ -31,7 +35,7 @@ import { NotificationModule } from './notification.module';
     FormsModule,
     ReactiveFormsModule,
     HttpClientModule,
-    NotificationModule
+    NotificationModule,
   ],
   providers: [
     {
