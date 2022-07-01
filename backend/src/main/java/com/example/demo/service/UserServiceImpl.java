@@ -139,6 +139,10 @@ public class UserServiceImpl implements UserDetailsService, UserService {
         User userFromDB = getUserByPublicId(publicId);
         user.setId(userFromDB.getId());
         user.setPublicId(userFromDB.getPublicId());
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        if(user.getDateOfBirth() == null){
+            user.setDateOfBirth(userFromDB.getDateOfBirth());
+        }
         if(user.getRoles() == null || user.getRoles().isEmpty()){
             user.setRoles(userFromDB.getRoles());
         }
