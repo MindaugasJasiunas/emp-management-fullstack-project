@@ -1,0 +1,24 @@
+html,
+body {
+  height: 100%;
+  width: 100%;
+}
+.container {
+  width: 70%;
+  margin-left: 15%;
+  margin-right: 15%;
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+mat-card > * {
+  margin-bottom: 5px;
+  margin-left: 5px;
+  margin-right: 5px;
+}
+.container2 {
+  width: 20%;
+  margin-left: 15%;
+  margin-right: 15%;
+  margin-top: 10px;
+  margin-bottom: 10px;
+}

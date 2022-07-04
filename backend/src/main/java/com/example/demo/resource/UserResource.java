@@ -71,14 +71,14 @@ public class UserResource extends ExceptionHandling {  // ExceptionHandling clas
 
     @PreAuthorize("hasAuthority('user:update')")
     @RequestMapping(value = "/updateProfileImage", method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<Void> updateProfileImage(@RequestParam(value = "email") String email, @RequestParam(value = "profileImage") MultipartFile profileImg) throws IOException {
+    public ResponseEntity<User> updateProfileImage(@RequestParam(value = "email") String email, @RequestParam(value = "profileImage") MultipartFile profileImg) throws IOException {
         try{
             userService.updateProfilePicture(email, profileImg);
         }catch (Exception e){
 //            System.err.println(e);
             return ResponseEntity.badRequest().build();
         }
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(userService.getUserByEmail(email)); //.build();
     }
 
     @RequestMapping(value = "/image/{publicId}/{fileName}", method = RequestMethod.GET, produces = MediaType.IMAGE_PNG_VALUE)

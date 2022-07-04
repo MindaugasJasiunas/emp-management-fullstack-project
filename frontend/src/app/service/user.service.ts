@@ -62,7 +62,7 @@ export class UserService {
       {
         // get progress events of an image upload
         reportProgress: true,
-        // observe: 'events',
+        observe: 'events',
         // headers : new HttpHeaders({ 'Content-Type': 'multipart/form-data' }) // setting manually does not set multipart boundary - throws error in the backend
       }
     );
