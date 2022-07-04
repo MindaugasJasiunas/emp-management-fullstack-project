@@ -153,7 +153,11 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 
         user.setId(userFromDB.getId());
         user.setPublicId(userFromDB.getPublicId());
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        if(user.getPassword().equalsIgnoreCase("DEFAULT_PASSWORD")){
+            user.setPassword(userFromDB.getPassword());
+        }else{
+            user.setPassword(passwordEncoder.encode(user.getPassword()));
+        }
         if(user.getDateOfBirth() == null){
             user.setDateOfBirth(userFromDB.getDateOfBirth());
         }
