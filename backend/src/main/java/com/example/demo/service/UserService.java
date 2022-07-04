@@ -14,7 +14,7 @@ public interface UserService {
     String generateTokenForUser(String username);
     User getUserByPublicId(String publicId) throws UserNotFoundException;
     User updateUser(User user, String publicId) throws Exception;
-    void deleteUser(String publicId) throws UserNotFoundException;
+    void deleteUser(String publicId) throws UserNotFoundException, IOException;
     void validateUser(String username, String password) throws Exception;
     User resetPassword(String email);
     User getUserByEmail(String email);

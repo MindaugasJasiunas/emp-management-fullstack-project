@@ -168,9 +168,19 @@ public class UserServiceImpl implements UserDetailsService, UserService {
     }
 
     @Override
-    public void deleteUser(String publicId) throws UserNotFoundException {
+    public void deleteUser(String publicId) throws UserNotFoundException, IOException {
         User userToDelete = getUserByPublicId(publicId);
+        String profileImageTitle = userToDelete.getProfileImageUrl().substring(userToDelete.getProfileImageUrl().lastIndexOf("/")+1);
         userRepository.deleteById(userToDelete.getId());
+
+        // find image in server
+        Path root = Paths.get("").toAbsolutePath();
+        Path path = Paths.get(root.toString(), File.separator, "application", File.separator, "profileImage", File.separator, profileImageTitle);
+//
+        if(profileImageTitle.endsWith("-profileImage.png")){
+            Files.deleteIfExists(path);
+        }
+        System.out.println(profileImageTitle);
     }
 
     @Override

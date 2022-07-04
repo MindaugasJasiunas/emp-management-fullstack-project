@@ -64,8 +64,8 @@ public class UserResource extends ExceptionHandling {  // ExceptionHandling clas
     public void deleteUser(@PathVariable("publicId") String publicId) throws UserNotFoundException{
         try{
             userService.deleteUser(publicId);
-        }catch(EmptyResultDataAccessException e){
-            //prevent error if ID doesn't exist
+        }catch(EmptyResultDataAccessException | IOException e){
+            //prevent error if ID or image doesn't exist
         }
     }
 
