@@ -116,10 +116,6 @@ export class UsersComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   openEditDialog(user: User): void {
-    // hide password
-    const userFromDBPass = user.password;
-    user.password = '';
-
     const dialogRef = this.dialog.open(UsersDialog, {
       height: '400px',
       width: '600px',
@@ -127,8 +123,8 @@ export class UsersComponent implements OnInit, OnDestroy, AfterViewInit {
     });
 
     dialogRef.afterClosed().subscribe((result) => {
-      console.log('The dialog was closed');
-      console.log('RESULT:: ', result);
+      // console.log('The dialog was closed');
+      // console.log('RESULT:: ', result);
       if (
         result !== null &&
         result !== undefined &&
@@ -137,9 +133,10 @@ export class UsersComponent implements OnInit, OnDestroy, AfterViewInit {
         const updatedUser: User = result;
         updatedUser.publicId = user.publicId;
         updatedUser.profileImageUrl = user.profileImageUrl;
-        if (result.password === '') {
-          updatedUser.password = userFromDBPass;
+        if (result.password === '' || result.password === undefined || result.password === null) {
+          updatedUser.password = 'DEFAULT_PASSWORD';  // backend checks & users default password kept.
         }
+        console.log(updatedUser)
         // update user in DB
         this.userService
           .updateUser(updatedUser)
@@ -198,19 +195,7 @@ export class UsersComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   openCreateDialog(): void {
-    const newDummyUser = new User(
-      null,
-      '',
-      '',
-      '',
-      '',
-      '',
-      '',
-      '',
-      true,
-      true,
-      null
-    );
+    const newDummyUser = new User(null, '', '', '', '', '', '', '', true, true, null);
 
     const dialogRef = this.dialog.open(UsersDialog, {
       height: '400px',

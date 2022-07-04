@@ -27,10 +27,8 @@ export class UsersDialog implements OnInit {
       email: new FormControl(null, [Validators.required, Validators.email]),
       firstName: new FormControl(null, Validators.required),
       lastName: new FormControl(null, Validators.required),
-      password: new FormControl(null, [
-        Validators.required,
-        Validators.minLength(8),
-      ]),
+      // password: new FormControl(null, [Validators.required, Validators.minLength(8)]),
+      password: new FormControl(null, this.data.publicId ? [Validators.nullValidator] :  [Validators.required, Validators.minLength(8)]),
       active: new FormControl(),
       notLocked: new FormControl(),
       dob: new FormControl(null, Validators.required),
