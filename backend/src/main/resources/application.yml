@@ -71,5 +71,5 @@ mail:
   smtpStartTLSEnable: mail.smtp.starttls.enable
   smtpStartTLSRequired: mail.smtp.starttls.required
 
-base_reset_url: http://localhost:8080/reset/
+base_reset_url: http://localhost:4200/restorePassword?code=
 base_user_image_url: http://localhost:8080/users/image/

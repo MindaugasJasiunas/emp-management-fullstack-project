@@ -16,6 +16,8 @@ import { AuthGuard } from './guard/auth.guard';
 import { NotificationModule } from './notification.module';
 import { UsersDialog } from './users/users-dialog/users.dialog';
 import { RegisterComponent } from './register/register.component';
+import { ForgotPasswordFormComponent } from './password/forgot-password-form/forgot-password-form.component';
+import { ForgotPasswordResetComponent } from './password/forgot-password-reset/forgot-password-reset.component';
 
 @NgModule({
   declarations: [
@@ -25,7 +27,9 @@ import { RegisterComponent } from './register/register.component';
     UsersComponent,
     LoginComponent,
     UsersDialog,
-    RegisterComponent
+    RegisterComponent,
+    ForgotPasswordFormComponent,
+    ForgotPasswordResetComponent
   ],
   imports: [
     BrowserModule,

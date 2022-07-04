@@ -43,14 +43,14 @@ export class UserService {
   }
 
   // maybe move to authentication service !?
-  public resetPassword(email: string): Observable<void | HttpErrorResponse> {
-    return this.http.post<void>(`${this.host}/reset`, email);
+  public resetPassword(request: {email: string}): Observable<void> {
+    return this.http.post<void>(`${this.host}/reset`, request, {headers : new HttpHeaders({ 'Content-Type': 'application/json' })});
   }
   public restorePassword(
-    passwordRequest: { password: string; repeatPassword: string },
+    passwordRequest: { newPassword: string; newPasswordRepeated: string },
     link: string
-  ): Observable<void | HttpErrorResponse> {
-    return this.http.post<void>(`${this.host}/reset/${link}`, passwordRequest);
+  ): Observable<void> {
+    return this.http.post<void>(`${this.host}/reset/${link}`, passwordRequest, {headers : new HttpHeaders({ 'Content-Type': 'application/json' })});
   }
 
   public updateProfileImage(
