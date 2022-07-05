@@ -30,6 +30,7 @@ INSERT INTO role_authority (role_id, authority_id) VALUES (2, 1);
 INSERT INTO role_authority (role_id, authority_id) VALUES (2, 2);
 INSERT INTO role_authority (role_id, authority_id) VALUES (3, 1);
 INSERT INTO role_authority (role_id, authority_id) VALUES (3, 2);
+INSERT INTO role_authority (role_id, authority_id) VALUES (3, 3);
 INSERT INTO role_authority (role_id, authority_id) VALUES (4, 1);
 INSERT INTO role_authority (role_id, authority_id) VALUES (4, 2);
 INSERT INTO role_authority (role_id, authority_id) VALUES (4, 3);
