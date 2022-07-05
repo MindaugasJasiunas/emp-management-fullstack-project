@@ -108,7 +108,7 @@ export class UsersComponent implements OnInit, OnDestroy, AfterViewInit {
           error: (err: HttpErrorResponse) => {
             this.notificationService.showNotification(
               'error',
-              'An error occured. Please try again'
+              err.error.message
             );
           },
         });
