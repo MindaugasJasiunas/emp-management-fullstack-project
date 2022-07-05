@@ -1,6 +1,8 @@
 import { Component, Inject, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { RoleEnum } from 'src/app/enum/role.enum';
+import { Role } from 'src/app/model/role.model';
 import { User } from 'src/app/model/user.model';
 
 @Component({
@@ -9,6 +11,7 @@ import { User } from 'src/app/model/user.model';
 })
 export class UsersDialog implements OnInit {
   form!: FormGroup;
+  roles: Role[] = [new Role(0, RoleEnum.USER), new Role(0, RoleEnum.MANAGER), new Role(0, RoleEnum.HR), new Role(0, RoleEnum.ADMIN)];
 
   constructor(
     public dialogRef: MatDialogRef<UsersDialog>,
@@ -34,6 +37,7 @@ export class UsersDialog implements OnInit {
       dob: new FormControl(null, Validators.required),
       file: new FormControl(),
       fileSource: new FormControl(),
+      role: new FormControl()
     });
 
     // set loaded user values
@@ -44,7 +48,8 @@ export class UsersDialog implements OnInit {
       lastName: this.data.lastName,
       active: this.data.active,
       notLocked: this.data.notLocked,
-      dob: this.data.dateOfBirth
+      dob: this.data.dateOfBirth,
+      role: this.data.roles? this.data.roles![0].roleName : RoleEnum.USER
     });
   }
 

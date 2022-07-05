@@ -11,8 +11,10 @@ import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
 import { ActivatedRoute, Data } from '@angular/router';
 import { BehaviorSubject, Subscription, take } from 'rxjs';
+import { RoleEnum } from '../enum/role.enum';
 import { Role } from '../model/role.model';
 import { User } from '../model/user.model';
+import { AuthenticationService } from '../service/authentication.service';
 import { NotificationService } from '../service/notification.service';
 import { UserService } from '../service/user.service';
 import { UsersDialog } from './users-dialog/users.dialog';
@@ -40,6 +42,7 @@ export class UsersComponent implements OnInit, OnDestroy, AfterViewInit {
   constructor(
     private userService: UserService,
     // private activatedRoute: ActivatedRoute,
+    private authService: AuthenticationService,
     private notificationService: NotificationService,
     public dialog: MatDialog
   ) {}
@@ -130,16 +133,20 @@ export class UsersComponent implements OnInit, OnDestroy, AfterViewInit {
         result !== undefined &&
         !(typeof result === 'string' && result === '')
       ) {
-        const updatedUser: User = result;
-        updatedUser.publicId = user.publicId;
-        updatedUser.profileImageUrl = user.profileImageUrl;
-        if (result.password === '' || result.password === undefined || result.password === null) {
-          updatedUser.password = 'DEFAULT_PASSWORD';  // backend checks & users default password kept.
-        }
-        console.log(updatedUser)
+        const updatedUserToSave: User = new User(user.publicId, result.username, result.email, (result.password === '' || result.password === undefined || result.password === null) ?
+           'DEFAULT_PASSWORD': result.password, result.firstName, result.lastName, user.profileImageUrl, result.dao, result.active, result.notLocked, [new Role(0, result.role)]);
+
+        // const updatedUser: User = result;
+        // updatedUser.publicId = user.publicId;
+        // updatedUser.profileImageUrl = user.profileImageUrl;
+        // if (result.password === '' || result.password === undefined || result.password === null) {
+        //   updatedUser.password = 'DEFAULT_PASSWORD';  // backend checks & users default password kept.
+        // }
+        // console.log(updatedUser)
         // update user in DB
         this.userService
-          .updateUser(updatedUser)
+          // .updateUser(updatedUser)
+          .updateUser(updatedUserToSave)
           .pipe(take(1))
           .subscribe({
             next: (response: User) => {
@@ -156,7 +163,7 @@ export class UsersComponent implements OnInit, OnDestroy, AfterViewInit {
                   next: (response: HttpEvent<any>) => {
                     this.notificationService.showNotification(
                       'success',
-                      `User ${updatedUser.username} successfully updated.`
+                      `User ${updatedUserToSave.username} successfully updated.`
                     );
                     this.refresh();
                   },
@@ -171,7 +178,7 @@ export class UsersComponent implements OnInit, OnDestroy, AfterViewInit {
               }else{
                 this.notificationService.showNotification(
                   'success',
-                  `User ${updatedUser.username} successfully updated.`
+                  `User ${updatedUserToSave.username} successfully updated.`
                 );
                 this.refresh();
               }
@@ -211,7 +218,7 @@ export class UsersComponent implements OnInit, OnDestroy, AfterViewInit {
         result !== undefined &&
         !(typeof result === 'string' && result === '')
       ) {
-        const userToSave: User = result;
+        const userToSave: User = new User(null, result.username, result.email, result.password, result.firstName, result.lastName, result.profileImageUrl, result.dao, result.active, result.notLocked, [new Role(0, result.role)]);
         this.userService
           .createUser(userToSave)
           .pipe(take(1))
@@ -230,7 +237,7 @@ export class UsersComponent implements OnInit, OnDestroy, AfterViewInit {
                   next: (response: HttpEvent<any>) => {
                     this.notificationService.showNotification(
                       'success',
-                      `User ${newDummyUser.username} successfully updated.`
+                      `User ${newDummyUser.username} successfully created.`
                     );
                     this.refresh();
                   },
@@ -245,7 +252,7 @@ export class UsersComponent implements OnInit, OnDestroy, AfterViewInit {
               }else{
                 this.notificationService.showNotification(
                   'success',
-                  `User ${newDummyUser.username} successfully updated.`
+                  `User ${newDummyUser.username} successfully created.`
                 );
                 this.refresh();
               }
@@ -267,4 +274,27 @@ export class UsersComponent implements OnInit, OnDestroy, AfterViewInit {
       }
     });
   }
+
+  private getUserRole(): Role{
+    return this.authService.getUserFromLocalCache().roles![0] as Role;
+  }
+
+  public get isAdmin(): boolean{
+    return this.getUserRole().roleName === RoleEnum.ADMIN;
+  }
+
+  public get isManager(): boolean{
+    return this.getUserRole().roleName === RoleEnum.MANAGER || this.isAdmin;
+  }
+
+  public get isHR(): boolean{
+    return this.getUserRole().roleName === RoleEnum.HR || this.isManager || this.isAdmin;
+  }
+
+  public get isUser(): boolean{
+    return this.getUserRole().roleName === RoleEnum.USER;
+  }
+
+
+
 }

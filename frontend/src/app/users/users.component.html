@@ -11,7 +11,7 @@
       (keyup)="applyFilter($event)"
     />
   </mat-form-field>
-  <button mat-button (click)="openCreateDialog()">Add new user</button>
+  <button [hidden]="!isManager" mat-button (click)="openCreateDialog()">Add new user</button>
   <button mat-button (click)="refresh()"><mat-icon>refresh</mat-icon></button>
 </div>
 <div class="container">
@@ -59,10 +59,10 @@
     <ng-container matColumnDef="actions">
       <th mat-header-cell *matHeaderCellDef>Actions</th>
       <td mat-cell *matCellDef="let user">
-        <a mat-icon-button (click)="openEditDialog(user)">
+        <a [hidden]="!isManager" mat-icon-button (click)="openEditDialog(user)">
           <mat-icon>edit_note</mat-icon>
         </a>
-        <a mat-icon-button (click)="onDelete(user)">
+        <a *ngIf="isAdmin" mat-icon-button (click)="onDelete(user)">
           <mat-icon>delete</mat-icon>
         </a>
       </td>

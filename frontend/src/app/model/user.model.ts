@@ -12,7 +12,7 @@ export class User {
     public dateOfBirth: string,
     public active: boolean,
     public notLocked: boolean,
-    public roles: Role[] | null,
+    public roles: Role[] | null = [],
     public joinDate?: string,
     public lastLoginDate?: string,
     public age?: number | null,

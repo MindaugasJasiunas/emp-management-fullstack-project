@@ -37,6 +37,16 @@
       </mat-datepicker-toggle>
       <mat-datepicker #picker></mat-datepicker>
     </mat-form-field>
+    <mat-form-field appearance="fill">
+      <mat-label>Role</mat-label>
+      <mat-select formControlName="role">
+        <mat-option *ngFor="let role of roles" [value]="role.roleName">{{role.roleName.substring(role.roleName.lastIndexOf('_')+1)}}</mat-option>
+        <!-- <mat-option value="ROLE_USER">User</mat-option> -->
+        <!-- <mat-option value="ROLE_HR">HR</mat-option> -->
+        <!-- <mat-option value="ROLE_MANAGER">Manager</mat-option> -->
+        <!-- <mat-option value="ROLE_ADMIN">Admin</mat-option> -->
+      </mat-select>
+    </mat-form-field>
 
     <br/>
     <mat-checkbox formControlName="active" color="primary">

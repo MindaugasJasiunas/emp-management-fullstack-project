@@ -1,5 +1,6 @@
 package com.example.demo.service;
 
+import com.example.demo.domain.Role;
 import com.example.demo.domain.User;
 import com.example.demo.domain.UserPrincipal;
 import com.example.demo.exception.domain.*;
@@ -28,6 +29,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -129,6 +131,14 @@ public class UserServiceImpl implements UserDetailsService, UserService {
                 user.setRoles(Set.of(roleRepository.findByRoleName("ROLE_USER").get()));
                 return userRepository.save(user);
             }
+        }else{
+            Set<Role> userRoles = user.getRoles();
+            userRoles.forEach(role -> {
+                if(roleRepository.findByRoleName(role.getRoleName()).isPresent()){
+                    user.setRoles(Set.of(roleRepository.findByRoleName(role.getRoleName()).get()));
+                }
+            });
+            return userRepository.save(user);
         }
         // else internal server error
         throw new Exception("");
@@ -163,6 +173,17 @@ public class UserServiceImpl implements UserDetailsService, UserService {
         }
         if(user.getRoles() == null || user.getRoles().isEmpty()){
             user.setRoles(userFromDB.getRoles());
+        }else{
+            Set<Role> userRoles = user.getRoles();
+            Set<Role> roleSet = new HashSet<>();
+            userRoles.forEach(role -> {
+                if(roleRepository.findByRoleName(role.getRoleName()).isPresent()){
+                    roleSet.add(roleRepository.findByRoleName(role.getRoleName()).get());
+                }
+            });
+            if(roleSet.size()>0){
+                user.setRoles(roleSet);
+            }
         }
         return userRepository.save(user);
     }
