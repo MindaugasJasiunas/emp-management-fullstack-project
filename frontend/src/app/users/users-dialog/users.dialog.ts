@@ -4,6 +4,7 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { RoleEnum } from 'src/app/enum/role.enum';
 import { Role } from 'src/app/model/role.model';
 import { User } from 'src/app/model/user.model';
+import { AuthenticationService } from 'src/app/service/authentication.service';
 
 @Component({
   selector: 'users-dialog',
@@ -15,7 +16,8 @@ export class UsersDialog implements OnInit {
 
   constructor(
     public dialogRef: MatDialogRef<UsersDialog>,
-    @Inject(MAT_DIALOG_DATA) public data: User
+    @Inject(MAT_DIALOG_DATA) public data: User,
+    private authService: AuthenticationService
   ) {}
 
   onNoClick(): void {
@@ -37,7 +39,7 @@ export class UsersDialog implements OnInit {
       dob: new FormControl(null, Validators.required),
       file: new FormControl(),
       fileSource: new FormControl(),
-      role: new FormControl()
+      role: new FormControl(),
     });
 
     // set loaded user values
@@ -83,6 +85,10 @@ export class UsersDialog implements OnInit {
         fileSource: file,
       });
     }
+  }
+
+  checkForRole(role: string): boolean{
+    return this.authService.checkForRole(role);
   }
 
 }

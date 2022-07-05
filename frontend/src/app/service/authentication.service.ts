@@ -9,6 +9,8 @@ import { Observable } from 'rxjs';
 import { User } from '../model/user.model';
 
 import { JwtHelperService } from '@auth0/angular-jwt';
+import { Role } from '../model/role.model';
+import { RoleEnum } from '../enum/role.enum';
 
 @Injectable({ providedIn: 'root' })
 export class AuthenticationService {
@@ -86,5 +88,40 @@ export class AuthenticationService {
     }
     this.logout();
     return false;
+  }
+
+  private getUserRole(): Role {
+    return this.getUserFromLocalCache().roles![0] as Role;
+  }
+
+  public checkForRole(role: string) {
+    switch (role.toUpperCase()) {
+      case 'ADMIN':
+        return this.isAdmin;
+      case 'MANAGER':
+        return this.isManager;
+      case 'HR':
+        return this.isHR;
+      case 'USER':
+        return this.isUser;
+      default:
+        return false;
+    }
+  }
+
+  private get isAdmin(): boolean{
+    return this.getUserRole().roleName === RoleEnum.ADMIN;
+  }
+
+  private get isManager(): boolean{
+    return this.getUserRole().roleName === RoleEnum.MANAGER || this.isAdmin;
+  }
+
+  private get isHR(): boolean{
+    return this.getUserRole().roleName === RoleEnum.HR || this.isManager || this.isAdmin;
+  }
+
+  private get isUser(): boolean{
+    return this.getUserRole().roleName === RoleEnum.USER;
   }
 }

@@ -275,26 +275,8 @@ export class UsersComponent implements OnInit, OnDestroy, AfterViewInit {
     });
   }
 
-  private getUserRole(): Role{
-    return this.authService.getUserFromLocalCache().roles![0] as Role;
+  checkForRole(role: string): boolean{
+      return this.authService.checkForRole(role);
   }
-
-  public get isAdmin(): boolean{
-    return this.getUserRole().roleName === RoleEnum.ADMIN;
-  }
-
-  public get isManager(): boolean{
-    return this.getUserRole().roleName === RoleEnum.MANAGER || this.isAdmin;
-  }
-
-  public get isHR(): boolean{
-    return this.getUserRole().roleName === RoleEnum.HR || this.isManager || this.isAdmin;
-  }
-
-  public get isUser(): boolean{
-    return this.getUserRole().roleName === RoleEnum.USER;
-  }
-
-
 
 }
