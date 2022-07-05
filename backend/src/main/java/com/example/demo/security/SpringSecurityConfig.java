@@ -52,7 +52,6 @@ public class SpringSecurityConfig {
                         .antMatchers("/users/**").permitAll()
                         .antMatchers("/content/**").permitAll()
                         .antMatchers("/register", "/login", "/reset/**").permitAll()
-                        .antMatchers("/canTest").hasAuthority("canTest")
                         .anyRequest().authenticated() //should be after all matchers
                 )
                 .httpBasic(withDefaults())
