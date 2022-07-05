@@ -14,6 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 
 @RestController
@@ -73,6 +74,7 @@ public class UserResource extends ExceptionHandling {  // ExceptionHandling clas
     @RequestMapping(value = "/updateProfileImage", method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<User> updateProfileImage(@RequestParam(value = "email") String email, @RequestParam(value = "profileImage") MultipartFile profileImg) throws IOException {
         try{
+            if(!Arrays.asList(MediaType.IMAGE_PNG_VALUE, MediaType.IMAGE_JPEG_VALUE, MediaType.IMAGE_GIF).contains(profileImg.getContentType())) throw new NotAnImageFileException();
             userService.updateProfilePicture(email, profileImg);
         }catch (Exception e){
 //            System.err.println(e);

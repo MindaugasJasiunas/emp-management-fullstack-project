@@ -31,6 +31,8 @@ public class ExceptionHandling {
     private static final String USERNAME_EXISTS = "User with username %s already exists";
 //    private static final String USER_MALFORMED_PUBLIC_ID = "Error occurred while trying to find user by id. Try changing user id and try again.";
     private static final String USER_NOT_FOUND = "User not found.";
+    private static final String NOT_AN_IMAGE_FILE = "File provided is not an image.";
+
 
     private ResponseEntity<HttpResponse> createHttpResponse(HttpStatus status, String message){
         HttpResponse response = new HttpResponse(status.value(), status, status.getReasonPhrase(), message);
@@ -112,6 +114,11 @@ public class ExceptionHandling {
     @ExceptionHandler(UsernameNotFoundException.class)
     public ResponseEntity<HttpResponse> handleUsernameNotFoundException(UsernameNotFoundException exception){
         return createHttpResponse(HttpStatus.BAD_REQUEST, USER_NOT_FOUND);
+    }
+
+    @ExceptionHandler(NotAnImageFileException.class)
+    public ResponseEntity<HttpResponse> handleNotAnImageFileException(NotAnImageFileException exception){
+        return createHttpResponse(HttpStatus.BAD_REQUEST, NOT_AN_IMAGE_FILE);
     }
 
 //    @ExceptionHandler(NoHandlerFoundException.class)

@@ -51,7 +51,7 @@
     <!-- file input doesn't work with mat-form-field -->
     <!-- <mat-form-field appearance="fill"> -->
      <mat-label>Profile Picture</mat-label>
-      <input #fileInput hidden="true" type="file" onclick="this.value=null" (change)="onFileChange($event)" accept=".png" formControlName="file"/>
+      <input #fileInput hidden="true" type="file" onclick="this.value=null" (change)="onFileChange($event)" accept="image/*" formControlName="file"/>
       <button mat-flat-button color="primary" (click)="fileInput.click()">Choose Image</button>
     <!-- </mat-form-field> -->
 
