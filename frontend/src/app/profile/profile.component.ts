@@ -115,11 +115,6 @@ export class ProfileComponent implements OnInit, OnDestroy {
     this.subscriptions.forEach(subscription => subscription.unsubscribe());
   }
 
-  checkForRole(role: string): boolean{
-    return this.authService.checkForRole(role);
-  }
-
-
   // fileUploadStatus: {status: string, percentage: number} = {status: '', percentage: 0};
 
   // reportUploadProgress(event: HttpEvent<any>) {
