@@ -6,6 +6,7 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTDecodeException;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.exceptions.SignatureVerificationException;
+import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.auth0.jwt.interfaces.Claim;
 import com.example.demo.domain.UserPrincipal;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -69,7 +70,7 @@ public class JWTTokenProvider {
         String username;
         try{
             username = getJWTVerifier().verify(token).getSubject();
-        }catch (JWTDecodeException | SignatureVerificationException e){
+        }catch (TokenExpiredException | JWTDecodeException | SignatureVerificationException e){
             return false;
         }
         return ((username != null) && (username.trim() != "") && (!isTokenExpired(token)));
@@ -79,7 +80,7 @@ public class JWTTokenProvider {
         return getJWTVerifier().verify(token).getSubject();
     }
 
-    private boolean isTokenExpired(String token){
+    public boolean isTokenExpired(String token){
         Date expiration = getJWTVerifier().verify(token).getExpiresAt();
         return expiration.before(new Date());
     }
