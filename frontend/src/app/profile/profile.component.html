@@ -58,11 +58,8 @@
           permissions</mat-card-title
         >
         <mat-card-subtitle>permissions from assigned role</mat-card-subtitle>
-        <mat-card-content>
-          <li>users:read</li>
-          <li>users:create</li>
-          <li>users:update</li>
-          <li>users:delete</li>
+        <mat-card-content *ngIf="user.roles">
+          <li *ngFor="let authority of user.roles[0].authorities">{{authority.permission}}</li>
         </mat-card-content>
       </mat-card>
     </mat-card-content>
