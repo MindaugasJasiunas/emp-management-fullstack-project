@@ -23,7 +23,6 @@ public class Role {
     @JsonIgnore
     @ManyToMany(mappedBy = "roles")
     private Set< User> users;
-    @JsonIgnore
     @ManyToMany(cascade = CascadeType.MERGE, fetch = FetchType.EAGER)
     @JoinTable(name = "role_authority", joinColumns = {@JoinColumn(name = "role_id", referencedColumnName = "id")},
             inverseJoinColumns = {@JoinColumn(name = "authority_id", referencedColumnName = "id")}
