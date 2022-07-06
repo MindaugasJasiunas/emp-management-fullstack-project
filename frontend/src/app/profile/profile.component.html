@@ -26,7 +26,7 @@
 
         <mat-form-field appearance="fill">
           <mat-label>Role</mat-label>
-          <mat-select formControlName="role" [value]="user.roles![0].roleName">
+          <mat-select formControlName="role" [value]="user.roles![0].roleName" [disabled]="!checkForRole('ADMIN')">
             <mat-option value="ROLE_USER">User</mat-option>
             <mat-option value="ROLE_HR">HR</mat-option>
             <mat-option value="ROLE_MANAGER">Manager</mat-option>
