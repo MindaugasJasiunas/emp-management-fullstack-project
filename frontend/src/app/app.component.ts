@@ -10,7 +10,6 @@ import { AuthenticationService } from './service/authentication.service';
   providers: [],
 })
 export class AppComponent {
-  title = 'frontend';
 
   constructor() {}
 
