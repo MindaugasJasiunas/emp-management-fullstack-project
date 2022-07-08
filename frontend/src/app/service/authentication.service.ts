@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import {
   HttpClient,
   HttpErrorResponse,
+  HttpHeaders,
   HttpResponse,
 } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
@@ -15,9 +16,11 @@ import { RoleEnum } from '../enum/role.enum';
 @Injectable({ providedIn: 'root' })
 export class AuthenticationService {
   public hostLogin = environment.apiLoginUrl;
+  public hostRefreshToken = environment.hostRefreshToken;
   public hostRegister = environment.apiRegisterUrl;
   public hostResetPassword = environment.apiResetPasswordUrl;
   private token: string | null = null;
+  private refreshToken: string | null = null;
   private loggedInUsername: string | null = null;
   private jwtHelper = new JwtHelperService();
 
@@ -29,6 +32,14 @@ export class AuthenticationService {
   }): Observable<HttpResponse<User>> {
     return this.http.post<User>(this.hostLogin, loginRequest, {
       observe: 'response',
+    });
+  }
+
+  public getAccessToken(refreshToken: string): Observable<HttpResponse<any>> {
+    this.isLoggedIn();
+    return this.http.get<User>(this.hostRefreshToken, {
+      observe: 'response',
+      headers: new HttpHeaders({'Authorization': refreshToken})
     });
   }
 
@@ -51,10 +62,16 @@ export class AuthenticationService {
     // remove items from localStorage - token, user information
     localStorage.removeItem('user');
     localStorage.removeItem('token');
-    localStorage.removeItem('users');
+    localStorage.removeItem('refreshToken');
+    // localStorage.removeItem('users');
   }
 
-  public saveToken(token: string): void {
+  public saveRefreshToken(refreshToken: string): void {
+    this.refreshToken = refreshToken;
+    localStorage.setItem('refreshToken', refreshToken);
+  }
+
+  public saveAccessToken(token: string): void {
     this.token = token;
     localStorage.setItem('token', token);
   }
@@ -68,20 +85,29 @@ export class AuthenticationService {
     return JSON.parse(localStorage.getItem('user')!);
   }
 
-  public loadTokenFromLocalCache(): void {
+  public loadAccessTokenFromLocalCache(): void {
     this.token = localStorage.getItem('token')!;
   }
 
-  public getTokenFromLocalCache(): string | null {
+  public loadRefreshTokenFromLocalCache(): void {
+    this.refreshToken = localStorage.getItem('refreshToken')!;
+  }
+
+  public getAccessTokenFromLocalCache(): string | null {
     return this.token;
   }
 
+  public getRefreshTokenFromLocalCache(): string | null {
+    return this.refreshToken;
+  }
+
   public isLoggedIn(): boolean {
-    this.loadTokenFromLocalCache();
-    if (this.token !== null && this.token !== '') {
-      if (this.jwtHelper.decodeToken(this.token).sub != null || '') {
-        if (!this.jwtHelper.isTokenExpired(this.token)) {
-          this.loggedInUsername = this.jwtHelper.decodeToken(this.token).sub;
+    // if refresh token is valid - user is logged in
+    this.loadRefreshTokenFromLocalCache();
+    if (this.refreshToken !== null && this.refreshToken !== '') {
+      if (this.jwtHelper.decodeToken(this.refreshToken).sub != null || '') {
+        if (!this.jwtHelper.isTokenExpired(this.refreshToken)) {
+          this.loggedInUsername = this.jwtHelper.decodeToken(this.refreshToken).sub;
           return true;
         }
       }
@@ -123,5 +149,9 @@ export class AuthenticationService {
 
   private get isUser(): boolean{
     return this.getUserRole().roleName === RoleEnum.USER;
+  }
+
+  public isTokenExpired(token: string | undefined){
+    return this.jwtHelper.isTokenExpired(token);
   }
 }

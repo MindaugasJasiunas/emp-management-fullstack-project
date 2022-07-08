@@ -1,9 +1,6 @@
 package com.example.demo.resource;
 
-import com.example.demo.HttpAuthLoginRequest;
-import com.example.demo.HttpAuthRegisterRequest;
-import com.example.demo.HttpNewPasswordRequest;
-import com.example.demo.HttpPasswordResetRequest;
+import com.example.demo.*;
 import com.example.demo.domain.PasswordReset;
 import com.example.demo.domain.User;
 import com.example.demo.domain.UserPrincipal;
@@ -72,11 +69,11 @@ public class AuthenticationResource {
         User userToReturn = userService.getUserByUsername(request.username());
         // if error not thrown from validateUser - generate token & return
 
-        String token = userService.generateTokenForUser(request.username());
-        if(token == null) throw new Exception("");
+        String refreshToken = userService.generateTokenForUser(request.username(), true);
+        if(refreshToken == null) throw new Exception("");
 
         HttpHeaders headers= new HttpHeaders();
-        headers.set(HttpHeaders.AUTHORIZATION, String.format("Bearer %s", token));
+        headers.set(HttpHeaders.AUTHORIZATION, String.format("Bearer %s", refreshToken));
         headers.set(HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS, "Content-Length, Authorization");
         return ResponseEntity.ok().headers(headers).body(userToReturn);
     }
@@ -104,5 +101,15 @@ public class AuthenticationResource {
         userService.updatePassword(emailByLink, request.newPassword());
         passwordResetService.deleteDBEntryByEmail(emailByLink);
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/refreshToken")
+    public ResponseEntity<Void> getAccessToken(@RequestHeader(value = HttpHeaders.AUTHORIZATION) String refreshToken) throws UserValidationException {
+        String accessToken = userService.refreshToken(refreshToken);
+
+        HttpHeaders headers= new HttpHeaders();
+        headers.set(HttpHeaders.AUTHORIZATION, String.format("Bearer %s", accessToken));
+        headers.set(HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS, "Content-Length, Authorization");
+        return ResponseEntity.ok().headers(headers).build();
     }
 }

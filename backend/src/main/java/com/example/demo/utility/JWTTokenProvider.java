@@ -8,6 +8,7 @@ import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.exceptions.SignatureVerificationException;
 import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.auth0.jwt.interfaces.Claim;
+import com.auth0.jwt.interfaces.DecodedJWT;
 import com.example.demo.domain.UserPrincipal;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.ConstructorBinding;
@@ -17,7 +18,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
-import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.*;
@@ -30,15 +30,17 @@ public class JWTTokenProvider {
     private final String authorizationHeader = HttpHeaders.AUTHORIZATION;
     private final String secretKey;
     public final String tokenPrefix;
-    private final Integer tokenExpirationAfterDays;
+    private final Integer tokenExpirationAfterMilliseconds;
+    private final Integer refreshTokenExpirationAfterDays;
 
-    public JWTTokenProvider(String secretKey, String tokenPrefix, Integer tokenExpirationAfterDays) {
+    public JWTTokenProvider(String secretKey, String tokenPrefix, Integer tokenExpirationAfterMilliseconds, Integer refreshTokenExpirationAfterDays) {
         this.secretKey = secretKey;
         this.tokenPrefix = tokenPrefix;
-        this.tokenExpirationAfterDays = tokenExpirationAfterDays;
+        this.tokenExpirationAfterMilliseconds = tokenExpirationAfterMilliseconds;
+        this.refreshTokenExpirationAfterDays = refreshTokenExpirationAfterDays;
     }
 
-    public String generateJwtToken(UserPrincipal userPrincipal){
+    public String generateJwtToken(UserPrincipal userPrincipal, boolean refreshToken){
         // get claims from authenticated user
         List<String> claims = getClaimsFromUser(userPrincipal);
         // generate JWT token
@@ -48,7 +50,34 @@ public class JWTTokenProvider {
                 .withIssuedAt(new Date())
                 .withSubject(userPrincipal.getUsername())
                 .withArrayClaim("authorities", claims.toArray(new String[0]))  // convert List< String> to String[]
-                .withExpiresAt(new Date(System.currentTimeMillis() + (tokenExpirationAfterDays * 60 * 60 * 24 * 1000)))
+                .withExpiresAt(new Date(System.currentTimeMillis() +
+                        (refreshToken ? (refreshTokenExpirationAfterDays * 60 * 60 * 24 * 1000) : (tokenExpirationAfterMilliseconds))
+                ))
+                .sign(Algorithm.HMAC512(secretKey));
+    }
+
+    public String refreshToken(String token){
+        try{
+            getJWTVerifier().verify(token);
+        }catch (TokenExpiredException e){
+            // JWT is expired as expected
+        }catch (Exception e){
+            throw new JWTVerificationException("Malformed JWT. Please login");
+        }
+        DecodedJWT decodedRefreshToken = JWT.decode(token);
+        Map<String, Claim> claims = decodedRefreshToken.getClaims();
+
+        // return new access token
+        return JWT.create()
+                .withIssuer(claims.get("iss").asString())
+                .withAudience(claims.get("aud").asString())
+                .withSubject(decodedRefreshToken.getSubject())
+                .withArrayClaim("authorities", claims.get("authorities").asArray(String.class))
+
+                // set new issuedAt & expiration
+                .withIssuedAt(new Date())
+                .withExpiresAt(new Date(System.currentTimeMillis() + (tokenExpirationAfterMilliseconds)))//(refreshTokenExpirationAfterDays * 60 * 60 * 24 * 1000)))
+
                 .sign(Algorithm.HMAC512(secretKey));
     }
 

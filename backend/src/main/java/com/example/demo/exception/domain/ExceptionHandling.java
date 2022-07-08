@@ -1,5 +1,6 @@
 package com.example.demo.exception.domain;
 
+import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.example.demo.HttpResponse;
 import org.springframework.http.HttpMethod;
@@ -119,6 +120,11 @@ public class ExceptionHandling {
     @ExceptionHandler(NotAnImageFileException.class)
     public ResponseEntity<HttpResponse> handleNotAnImageFileException(NotAnImageFileException exception){
         return createHttpResponse(HttpStatus.BAD_REQUEST, NOT_AN_IMAGE_FILE);
+    }
+
+    @ExceptionHandler(JWTVerificationException.class)
+    public ResponseEntity<HttpResponse> handleJWTVerificationException(JWTVerificationException exception){
+        return createHttpResponse(HttpStatus.BAD_REQUEST, exception.getMessage());
     }
 
 //    @ExceptionHandler(NoHandlerFoundException.class)

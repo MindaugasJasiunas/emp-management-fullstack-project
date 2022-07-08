@@ -37,7 +37,8 @@ server:
 jwt:
   secretKey: SuperLongAndVerySecureKey-[].~^+$&4
   tokenPrefix: 'Bearer '
-  tokenExpirationAfterDays: 14
+  tokenExpirationAfterMilliseconds: 25200000
+  refreshTokenExpirationAfterDays: 7
 
 # GMAIL
 #mail:

@@ -10,7 +10,7 @@ import {
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { NotifierService } from 'angular-notifier';
-import { Subscription } from 'rxjs';
+import { Subscription, take } from 'rxjs';
 import { User } from '../model/user.model';
 import { AuthenticationService } from '../service/authentication.service';
 import { NotificationService } from '../service/notification.service';
@@ -59,11 +59,27 @@ export class LoginComponent implements OnInit, OnDestroy {
           })
           .subscribe({
             next: (response: HttpResponse<User>) => {
-              this.authenticationService.saveToken(
+              // get refresh token
+              this.authenticationService.saveRefreshToken(
                 response.headers.get('authorization')!
               );
               this.authenticationService.addUserToLocalCache(response.body!);
-              this.router.navigate(['/']);
+              // get access token
+              this.authenticationService
+                .getAccessToken(response.headers.get('authorization')!)
+                .pipe(take(1)) // subscribes for 1 response & automatically unsubscribes
+                .subscribe({
+                  next: (response: HttpResponse<void>) => {
+                    this.authenticationService.saveAccessToken(
+                      response.headers.get('authorization')!
+                    );
+                  // redirect
+                  this.router.navigate(['/']);
+                  },
+                  error: (err: HttpErrorResponse) => {
+                    this.error = err.error.message;
+                  },
+                });
             },
             error: (err: HttpErrorResponse) => {
               this.error = err.error.message;

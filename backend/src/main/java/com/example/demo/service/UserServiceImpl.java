@@ -1,5 +1,6 @@
 package com.example.demo.service;
 
+import com.auth0.jwt.exceptions.JWTDecodeException;
 import com.example.demo.domain.Role;
 import com.example.demo.domain.User;
 import com.example.demo.domain.UserPrincipal;
@@ -267,10 +268,10 @@ public class UserServiceImpl implements UserDetailsService, UserService {
     }
 
     @Override
-    public String generateTokenForUser(String username){
+    public String generateTokenForUser(String username, boolean refreshToken){
         if(userRepository.findByUsername(username).isPresent()){
             User user = userRepository.findByUsername(username).get();
-            return jwtProvider.generateJwtToken(new UserPrincipal(user));
+            return jwtProvider.generateJwtToken(new UserPrincipal(user), refreshToken);
         }else{
             return null;
         }
@@ -293,6 +294,19 @@ public class UserServiceImpl implements UserDetailsService, UserService {
         if(user==null) return null;
         user.setActive(false);
         return userRepository.save(user);
+    }
+
+    @Override
+    public String refreshToken(String refreshToken) throws UserValidationException {
+        // get user principal by refreshToken
+        String token = null;
+        if(refreshToken.startsWith("Bearer ")){
+            token = refreshToken.substring(7);
+        }else{
+            throw new UserValidationException("Please login");
+
+        }
+       return jwtProvider.refreshToken(token);
     }
 
     private boolean passwordMatches(String username, String password) {

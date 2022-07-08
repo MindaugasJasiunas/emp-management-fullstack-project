@@ -5,10 +5,12 @@
 export const environment = {
   production: false,
   apiUrl: 'http://localhost:8080',
-  apiLoginUrl: 'http://localhost:8080/login',
+  apiLoginUrl: `http://localhost:8080/login`,
+  hostRefreshToken: 'http://localhost:8080/refreshToken',
   apiRegisterUrl: 'http://localhost:8080/register',
   apiResetPasswordUrl: 'http://localhost:8080/reset',
   usersApiUrl: 'http://localhost:8080/users',
+  expiredJWTMessage: 'JWT token expired',
 };
 
 /*
